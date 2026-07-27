@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <style>
 :root{
   --bg:#EEF1F7;
@@ -209,7 +209,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
       <h2 class="page-title">Input &amp; Edit Tabungan</h2>
     </div>
     <div class="card">
-      <div class="desc">Isi nominal di samping nama siswa, lalu klik Simpan. Siswa yang sudah tercatat hari ini bisa langsung diubah nominalnya.</div>
+      <div class="desc">Isi nominal di samping nama siswa, lalu klik Simpan. Untuk mengubah atau menghapus transaksi yang sudah tersimpan, buka menu Riwayat.</div>
       <div id="warnTunggakan"></div>
       <button class="btn outline small" onclick="muatDaftarSiswa()" style="width:auto;margin-bottom:10px">Muat / Segarkan Daftar</button>
       <div id="daftarSiswaArea"><div class="loading-text">Klik "Muat / Segarkan Daftar" untuk mulai.</div></div>
@@ -275,6 +275,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
       <h2 class="page-title">Riwayat Transaksi</h2>
     </div>
     <div class="card">
+      <div class="desc">Cek riwayat transaksi siswa. Setiap baris bisa diubah nominalnya atau dihapus manual.</div>
       <input type="text" id="absenRiwayat" placeholder="Nomor absen">
       <button class="btn pink" onclick="cekRiwayatAdmin()">Cek</button>
       <div id="areaRiwayatAdmin"></div>
@@ -297,7 +298,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwfideU8IKAYMtBeh-0Q2ARl8KnmOGMYWjZcECpz-sQR2rRESIh7tEuiWJ1jjOIT0Sp/exec";
+const API_URL = "GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT";
 
 function getPassword(){ return sessionStorage.getItem('adminPass') || ''; }
 async function call(action, extra){
@@ -312,11 +313,94 @@ function showError(elId, text){
 function showLoading(elId){
   document.getElementById(elId).innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat...</div>';
 }
-function downloadExcel(rows, filename, sheetName){
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, sheetName || 'Sheet1');
-  XLSX.writeFile(wb, filename + '.xlsx');
+async function unduhWorkbook_(sheetTitle, headers, rows, totalLabel, totalValue, tanggalLabel, filename, pakaiParaf){
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('Data');
+  const colCount = headers.length;
+
+  ws.mergeCells(1,1,1,colCount);
+  const judul = ws.getCell(1,1);
+  judul.value = 'Rekap Tabungan Siswa Kelas 3';
+  judul.font = { bold:true, size:14 };
+  judul.alignment = { horizontal:'center' };
+
+  ws.mergeCells(2,1,2,colCount);
+  const tglCell = ws.getCell(2,1);
+  tglCell.value = tanggalLabel;
+  tglCell.alignment = { horizontal:'center' };
+  tglCell.font = { italic:true };
+
+  const headerRow = 4;
+  headers.forEach((h,i)=>{ const c = ws.getCell(headerRow, i+1); c.value = h; c.font = { bold:true }; c.border = { bottom:{style:'thin'} }; });
+
+  let r = headerRow + 1;
+  rows.forEach(row=>{
+    headers.forEach((h,i)=>{ ws.getCell(r, i+1).value = row[h]; });
+    r++;
+  });
+
+  ws.mergeCells(r,1,r,colCount-1);
+  ws.getCell(r,1).value = totalLabel;
+  ws.getCell(r,1).font = { bold:true };
+  ws.getCell(r,colCount).value = totalValue;
+  ws.getCell(r,colCount).font = { bold:true };
+  ws.getRow(r).border = { top:{style:'thin'} };
+
+  if (pakaiParaf){
+    r += 2;
+    ws.mergeCells(r,1,r,colCount);
+    const parafCell = ws.getCell(r,1);
+    parafCell.value = 'Paraf:';
+    parafCell.font = { bold:true };
+    parafCell.alignment = { vertical:'top' };
+    ws.getRow(r).height = 70;
+  }
+
+  ws.columns.forEach(c => { c.width = 20; });
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type:'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename + '.xlsx';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function downloadRekapExcel(rows, headers, total, tanggalLabel, filename){
+  await unduhWorkbook_('Rekap', headers, rows, 'Total', total, tanggalLabel, filename, true);
+}
+async function downloadSaldoExcel(rows, headers, total, tanggalLabel, filename){
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('Saldo');
+  const colCount = headers.length;
+  ws.mergeCells(1,1,1,colCount);
+  const judul = ws.getCell(1,1);
+  judul.value = 'Saldo Tabungan Siswa Kelas 3';
+  judul.font = { bold:true, size:14 };
+  judul.alignment = { horizontal:'center' };
+  ws.mergeCells(2,1,2,colCount);
+  const tglCell = ws.getCell(2,1);
+  tglCell.value = tanggalLabel;
+  tglCell.alignment = { horizontal:'center' };
+  tglCell.font = { italic:true };
+  const headerRow = 4;
+  headers.forEach((h,i)=>{ const c = ws.getCell(headerRow, i+1); c.value = h; c.font = { bold:true }; });
+  let r = headerRow + 1;
+  rows.forEach(row=>{ headers.forEach((h,i)=>{ ws.getCell(r, i+1).value = row[h]; }); r++; });
+  ws.mergeCells(r,1,r,colCount-1);
+  ws.getCell(r,1).value = 'Total';
+  ws.getCell(r,1).font = { bold:true };
+  ws.getCell(r,colCount).value = total;
+  ws.getCell(r,colCount).font = { bold:true };
+  ws.columns.forEach(c => { c.width = 20; });
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type:'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename + '.xlsx';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ---- Tampilan ortu ---- */
@@ -400,41 +484,96 @@ function goToPage(page){
 }
 
 /* ---- A. Input & Edit ---- */
+function formatRibuan_(el){
+  const raw = el.value.replace(/\D/g, '');
+  el.value = raw ? Number(raw).toLocaleString('id-ID') : '';
+}
+function angkaMentah_(el){
+  return el.value.replace(/\./g, '').replace(/\D/g, '');
+}
+
+async function konfirmasiSudahSetor(saldoBelumSetor){
+  const btn = document.getElementById('btnKonfirmasiSetor');
+  btn.disabled = true; btn.textContent = 'Memproses...';
+  try {
+    const r = await call('setor', { nominal: saldoBelumSetor });
+    if (r.ok){ muatDaftarSiswa(); }
+    else { alert(r.pesan); btn.disabled = false; btn.textContent = 'Saya Sudah Setor, Buka Input'; }
+  } catch(err){ alert('Gagal: ' + err.message); btn.disabled = false; btn.textContent = 'Saya Sudah Setor, Buka Input'; }
+}
+function salinKalimat_(text, btnEl){
+  navigator.clipboard.writeText(text).then(() => {
+    const asal = btnEl.textContent;
+    btnEl.textContent = 'Tersalin!';
+    setTimeout(() => { btnEl.textContent = asal; }, 1500);
+  });
+}
+
 async function muatDaftarSiswa(){
   const area = document.getElementById('daftarSiswaArea');
+  const warn = document.getElementById('warnTunggakan');
   area.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat daftar siswa...</div>';
-  document.getElementById('warnTunggakan').innerHTML = '';
+  warn.innerHTML = '';
   try {
     const r = await call('listSiswaHariIni');
     if (!r.ok){ area.innerHTML = '<div class="result-msg err">' + r.pesan + '</div>'; return; }
-    if (r.saldoBelumSetor > 0){
-      document.getElementById('warnTunggakan').innerHTML = '<div class="banner-warn">Saldo belum disetor ke bendahara: ' + rupiah(r.saldoBelumSetor) + '</div>';
+
+    if (r.diblokir){
+      const kalimat = 'Saya sudah menyetor tabungan ke bendahara sejumlah ' + rupiah(r.saldoBelumSetor);
+      area.innerHTML = '';
+      warn.innerHTML = `
+        <div class="banner-warn">
+          <div style="margin-bottom:10px">Input ditutup sementara. Masih ada saldo belum disetor ke bendahara: <b>${rupiah(r.saldoBelumSetor)}</b>.</div>
+          <div style="background:#fff;border:1px solid var(--orange);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-style:italic">"${kalimat}"</div>
+          <div class="row">
+            <button class="btn small outline" onclick="salinKalimat_('${kalimat.replace(/'/g, "\\'")}', this)">Salin Kalimat</button>
+            <button class="btn small orange" id="btnKonfirmasiSetor" onclick="konfirmasiSudahSetor(${r.saldoBelumSetor})">Saya Sudah Setor, Buka Input</button>
+          </div>
+        </div>`;
+      return;
     }
-    area.innerHTML = r.list.map(s => `
-      <div class="siswa-row" data-absen="${s.absen}">
-        <div class="siswa-info">
-          <div class="siswa-nama">${s.nama}</div>
-          <div class="siswa-meta">Absen ${s.absen} &middot; Saldo ${rupiah(s.saldo)}</div>
-        </div>
-        <input type="text" class="siswa-input" placeholder="0" value="${s.nominalHariIni ? s.nominalHariIni : ''}">
-        <button class="btn small" onclick="simpanSatuSiswa('${s.absen}', this)">Simpan</button>
-        <span class="siswa-status"></span>
-      </div>`).join('');
-  } catch(err){ area.innerHTML = '<div class="result-msg err">Gagal memuat: ' + err.message + '</div>'; }
+
+    area.innerHTML = r.list.map((s, idx) => {
+      if (s.nominalHariIni > 0){
+        return `
+        <div class="siswa-row">
+          <div style="width:28px;color:var(--ink-soft)">${idx + 1}</div>
+          <div class="siswa-info">
+            <div class="siswa-nama">${s.nama}</div>
+            <div class="siswa-meta">Sudah diinput hari ini &mdash; ubah di menu Riwayat</div>
+          </div>
+          <div class="mono" style="width:130px;text-align:right;color:var(--ink-soft)">${rupiah(s.nominalHariIni)}</div>
+        </div>`;
+      }
+      return `
+        <div class="siswa-row" data-absen="${s.absen}">
+          <div style="width:28px;color:var(--ink-soft)">${idx + 1}</div>
+          <div class="siswa-info"><div class="siswa-nama">${s.nama}</div></div>
+          <input type="text" inputmode="numeric" class="siswa-input" placeholder="0" oninput="formatRibuan_(this)">
+          <button class="btn small" onclick="simpanSatuSiswa('${s.absen}', this)">Simpan</button>
+          <span class="siswa-status"></span>
+        </div>`;
+    }).join('');
+  } catch(err){
+    area.innerHTML = '<div class="result-msg err">Gagal memuat: ' + err.message + '</div>';
+  }
 }
 async function simpanSatuSiswa(absen, btnEl){
   const row = btnEl.closest('.siswa-row');
   const input = row.querySelector('.siswa-input');
   const status = row.querySelector('.siswa-status');
-  const nominal = input.value.trim();
+  const nominal = angkaMentah_(input);
   if (!nominal){ status.textContent = '!'; status.title = 'Isi nominal dulu'; return; }
   btnEl.disabled = true;
   status.innerHTML = '<span class="spinner" style="width:14px;height:14px;margin:0"></span>';
   try {
     const r = await call('simpanTransaksi', { absen: absen, nominal: nominal });
-    status.textContent = r.ok ? 'OK' : 'X';
-    status.title = r.pesan || '';
-    status.style.color = r.ok ? 'var(--blue)' : 'var(--pink)';
+    if (r.ok){
+      status.textContent = 'OK'; status.style.color = 'var(--blue)';
+      setTimeout(() => muatDaftarSiswa(), 600);
+    } else {
+      status.textContent = 'X'; status.title = r.pesan || ''; status.style.color = 'var(--pink)';
+    }
   } catch(err){ status.textContent = 'X'; status.title = err.message; }
   btnEl.disabled = false;
 }
@@ -456,7 +595,7 @@ async function rekapHarian(){
   area.innerHTML = `
     <div class="between" style="margin-top:10px">
       <div class="summary-line">Tanggal: <b>${r.tanggal || '-'}</b></div>
-      <button class="btn small outline" onclick='downloadExcel(lastRekapHarian, "Rekap_Harian_${r.tanggal || 'data'}", "Rekap")'>Download Excel</button>
+      <button class="btn small outline" id="btnDownloadRekapHarian">Download Excel</button>
     </div>
     <table>
       <thead><tr><th>Absen</th><th>Nama</th><th style="text-align:right">Nominal</th></tr></thead>
@@ -464,6 +603,10 @@ async function rekapHarian(){
       <tfoot><tr><td colspan="2">Total</td><td class="mono" style="text-align:right">${rupiah(r.total)}</td></tr></tfoot>
     </table>
     <div class="summary-line">Saldo belum disetor ke bendahara: <b>${rupiah(r.saldoBelumSetor)}</b></div>`;
+  document.getElementById('btnDownloadRekapHarian').onclick = () => downloadRekapExcel(
+    lastRekapHarian, ['Absen','Nama','Nominal'], r.total,
+    'Tanggal: ' + (r.tanggal || '-'), 'Rekap_Harian_' + (r.tanggal || 'data')
+  );
 }
 async function rekapRentang(){
   const tglMulai = document.getElementById('tglMulai').value;
@@ -477,13 +620,17 @@ async function rekapRentang(){
   area.innerHTML = `
     <div class="between" style="margin-top:10px">
       <div class="summary-line">Periode: <b>${tglMulai}</b> s/d <b>${tglAkhir}</b></div>
-      <button class="btn small outline" onclick='downloadExcel(lastRekapRentang, "Rekap_${tglMulai}_${tglAkhir}", "Rekap")'>Download Excel</button>
+      <button class="btn small outline" id="btnDownloadRekapRentang">Download Excel</button>
     </div>
     <table>
       <thead><tr><th>Tanggal</th><th>Absen</th><th>Nama</th><th style="text-align:right">Nominal</th></tr></thead>
       <tbody>${r.transaksi.map(x => `<tr><td>${x.tanggal}</td><td>${x.absen}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.nominal)}</td></tr>`).join('') || '<tr><td colspan="4">Tidak ada transaksi pada rentang ini.</td></tr>'}</tbody>
       <tfoot><tr><td colspan="3">Total</td><td class="mono" style="text-align:right">${rupiah(r.total)}</td></tr></tfoot>
     </table>`;
+  document.getElementById('btnDownloadRekapRentang').onclick = () => downloadRekapExcel(
+    lastRekapRentang, ['Tanggal','Absen','Nama','Nominal'], r.total,
+    'Periode: ' + tglMulai + ' s/d ' + tglAkhir, 'Rekap_' + tglMulai + '_' + tglAkhir
+  );
 }
 
 /* ---- C. Saldo ---- */
@@ -509,30 +656,71 @@ async function saldoKelas(){
   const r = await call('total');
   if (!r.ok){ showError('areaSaldoKelas', r.pesan); return; }
   lastSaldoKelas = r.list.map(x => ({ Absen: x.absen, Nama: x.nama, Saldo: x.saldo }));
+  const tglHariIni = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
   document.getElementById('areaSaldoKelas').innerHTML = `
     <div class="between" style="margin-top:10px">
       <div class="summary-line">Total keseluruhan: <b class="mono">${rupiah(r.totalKeseluruhan)}</b></div>
-      <button class="btn small outline" onclick='downloadExcel(lastSaldoKelas, "Saldo_Kelas", "Saldo")'>Download Excel</button>
+      <button class="btn small outline" id="btnDownloadSaldoKelas">Download Excel</button>
     </div>
     <table>
       <thead><tr><th>Absen</th><th>Nama</th><th style="text-align:right">Saldo</th></tr></thead>
       <tbody>${r.list.map(x => `<tr><td>${x.absen}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.saldo)}</td></tr>`).join('')}</tbody>
       <tfoot><tr><td colspan="2">Total</td><td class="mono" style="text-align:right">${rupiah(r.totalKeseluruhan)}</td></tr></tfoot>
     </table>`;
+  document.getElementById('btnDownloadSaldoKelas').onclick = () => downloadSaldoExcel(
+    lastSaldoKelas, ['Absen','Nama','Saldo'], r.totalKeseluruhan,
+    'Saldo per tanggal: ' + tglHariIni, 'Saldo_Kelas_' + tglHariIni.replace(/ /g,'_')
+  );
 }
 
 /* ---- D. Riwayat ---- */
+let riwayatAdminAbsen = '';
+
 async function cekRiwayatAdmin(){
   const absen = document.getElementById('absenRiwayat').value.trim();
+  riwayatAdminAbsen = absen;
   showLoading('areaRiwayatAdmin');
   const r = await call('riwayat', { absen: absen });
   if (!r.ok){ showError('areaRiwayatAdmin', r.pesan); return; }
+  renderRiwayatAdmin_(r.nama, r.riwayat);
+}
+function renderRiwayatAdmin_(nama, riwayat){
   document.getElementById('areaRiwayatAdmin').innerHTML = `
-    <div class="summary-line" style="margin-top:10px">Nama: <b>${r.nama}</b></div>
+    <div class="summary-line" style="margin-top:10px">Nama: <b>${nama}</b></div>
     <table>
-      <thead><tr><th>No</th><th>Tanggal</th><th style="text-align:right">Nominal</th></tr></thead>
-      <tbody>${r.riwayat.map((x,i) => `<tr><td>${i+1}</td><td>${x.tanggal}</td><td class="mono" style="text-align:right">${rupiah(x.nominal)}</td></tr>`).join('') || '<tr><td colspan="3">Belum ada riwayat.</td></tr>'}</tbody>
+      <thead><tr><th>No</th><th>Tanggal</th><th style="text-align:right">Nominal</th><th></th></tr></thead>
+      <tbody>${riwayat.map((x,i) => `
+        <tr data-row="${x.rowNumber}">
+          <td>${i+1}</td>
+          <td>${x.tanggal}</td>
+          <td style="text-align:right">
+            <input type="text" inputmode="numeric" class="riwayat-edit-input mono" style="width:120px;margin-bottom:0;text-align:right" value="${x.nominal.toLocaleString('id-ID')}" oninput="formatRibuan_(this)">
+          </td>
+          <td style="white-space:nowrap">
+            <button class="btn small pink" onclick="simpanEditRiwayat(this, ${x.rowNumber})">Simpan</button>
+            <button class="btn small outline" onclick="hapusRiwayat(this, ${x.rowNumber})">Hapus</button>
+          </td>
+        </tr>`).join('') || '<tr><td colspan="4">Belum ada riwayat.</td></tr>'}</tbody>
     </table>`;
+}
+async function simpanEditRiwayat(btnEl, rowNumber){
+  const tr = btnEl.closest('tr');
+  const input = tr.querySelector('.riwayat-edit-input');
+  const nominal = angkaMentah_(input);
+  if (!nominal){ alert('Nominal tidak boleh kosong.'); return; }
+  btnEl.disabled = true; btnEl.textContent = '...';
+  try {
+    const r = await call('editTransaksiRow', { rowNumber: rowNumber, nominal: nominal });
+    if (r.ok){ cekRiwayatAdmin(); } else { alert(r.pesan); btnEl.disabled = false; btnEl.textContent = 'Simpan'; }
+  } catch(err){ alert('Gagal: ' + err.message); btnEl.disabled = false; btnEl.textContent = 'Simpan'; }
+}
+async function hapusRiwayat(btnEl, rowNumber){
+  if (!confirm('Hapus transaksi ini? Tindakan ini tidak bisa dibatalkan.')) return;
+  btnEl.disabled = true; btnEl.textContent = '...';
+  try {
+    const r = await call('hapusTransaksiRow', { rowNumber: rowNumber });
+    if (r.ok){ cekRiwayatAdmin(); } else { alert(r.pesan); btnEl.disabled = false; btnEl.textContent = 'Hapus'; }
+  } catch(err){ alert('Gagal: ' + err.message); btnEl.disabled = false; btnEl.textContent = 'Hapus'; }
 }
 
 /* ---- E. Ranking ---- */
@@ -543,7 +731,7 @@ async function ranking(){
   document.getElementById('areaRanking').innerHTML = `
     <table>
       <thead><tr><th>Peringkat</th><th>Nama</th><th style="text-align:right">Total</th></tr></thead>
-      <tbody>${r.ranking.slice(0,15).map((x,i) => `<tr><td>${i+1}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.total)}</td></tr>`).join('') || '<tr><td colspan="3">Belum ada data.</td></tr>'}</tbody>
+      <tbody>${r.ranking.slice(0,3).map((x,i) => `<tr><td>${i+1}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.total)}</td></tr>`).join('') || '<tr><td colspan="3">Belum ada data.</td></tr>'}</tbody>
     </table>`;
 }
 
