@@ -55,7 +55,7 @@
   /* Tampilan ortu */
   .ortu-card{
     background:var(--card); border:1px solid var(--border); border-radius:16px;
-    padding:28px 24px; max-width:380px; margin:6vh auto 0; text-align:center;
+    padding:28px 24px; max-width:420px; margin:6vh auto 0; text-align:center;
   }
   .ortu-nama{font-size:1.4rem; font-weight:700; margin-bottom:20px}
   .saldo-label{color:var(--muted); font-size:.85rem}
@@ -65,6 +65,22 @@
     padding:14px; text-align:left; font-size:.9rem;
   }
   .info-box div{margin-bottom:6px}
+  .spinner{
+    width:22px; height:22px; border:3px solid var(--border); border-top-color:var(--accent2);
+    border-radius:50%; margin:14px auto; animation:spin .7s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg);} }
+  .loading-text{color:var(--muted); font-size:.9rem}
+  .riwayat-table{width:100%; border-collapse:collapse; font-size:.85rem; margin-top:14px}
+  .riwayat-table th,.riwayat-table td{padding:6px 4px; text-align:left; border-bottom:1px solid var(--border)}
+  .riwayat-table th{color:var(--muted); font-weight:600}
+  .pagination{display:flex; justify-content:space-between; align-items:center; margin-top:10px; gap:8px}
+  .pagination button{
+    background:transparent; border:1px solid var(--border); color:var(--text);
+    padding:6px 12px; border-radius:8px; font-size:.85rem; cursor:pointer; width:auto;
+  }
+  .pagination button:disabled{opacity:.4; cursor:not-allowed}
+  .pagination span{color:var(--muted); font-size:.82rem}
 
   /* Modal login admin */
   .overlay{
@@ -182,13 +198,27 @@ function showResult(elId, ok, text){
 }
 
 /* ---- Tampilan ortu ---- */
+let riwayatData = [];
+let riwayatPage = 1;
+const RIWAYAT_PER_HALAMAN = 10;
+
 async function cekOrtu(){
   const kode = document.getElementById('kodeOrtu').value.trim();
+  const resultEl = document.getElementById('resultOrtu');
   if (!kode){ showResult('resultOrtu', false, 'Masukkan kode akses dulu.'); return; }
+
+  // tampilkan loading
+  resultEl.className = '';
+  resultEl.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat data...</div>';
+
   try {
     const r = await call('ortuInfo', { kode: kode });
     if (!r.ok){ showResult('resultOrtu', false, r.pesan); return; }
-    document.getElementById('resultOrtu').outerHTML = `
+
+    riwayatData = r.riwayat || [];
+    riwayatPage = 1;
+
+    resultEl.outerHTML = `
       <div id="resultOrtu">
         <div class="ortu-nama">${r.nama}</div>
         <div class="saldo-label">Saldo saat ini</div>
@@ -197,10 +227,46 @@ async function cekOrtu(){
           <div>📅 Setoran terakhir: <b>${r.tanggalTerakhir || '-'}</b></div>
           <div>💰 Nominal terakhir: <b>Rp ${r.nominalTerakhir.toLocaleString('id-ID')}</b></div>
         </div>
+        <div id="riwayatArea"></div>
       </div>`;
+    renderRiwayat();
   } catch(err){
     showResult('resultOrtu', false, 'Gagal terhubung ke server. Cek apakah API_URL sudah benar, dan koneksi internet aktif.\n\nDetail: ' + err.message);
   }
+}
+
+function renderRiwayat(){
+  const area = document.getElementById('riwayatArea');
+  if (!area) return;
+  if (!riwayatData.length){
+    area.innerHTML = '<div class="loading-text" style="margin-top:14px">Belum ada riwayat tabungan.</div>';
+    return;
+  }
+  const totalPage = Math.ceil(riwayatData.length / RIWAYAT_PER_HALAMAN);
+  if (riwayatPage > totalPage) riwayatPage = totalPage;
+  if (riwayatPage < 1) riwayatPage = 1;
+
+  const start = (riwayatPage - 1) * RIWAYAT_PER_HALAMAN;
+  const rows = riwayatData.slice(start, start + RIWAYAT_PER_HALAMAN);
+
+  let html = `
+    <table class="riwayat-table">
+      <thead><tr><th>Tanggal</th><th style="text-align:right">Nominal</th></tr></thead>
+      <tbody>
+        ${rows.map(x => `<tr><td>${x.tanggal}</td><td style="text-align:right">Rp ${x.nominal.toLocaleString('id-ID')}</td></tr>`).join('')}
+      </tbody>
+    </table>
+    <div class="pagination">
+      <button onclick="gantiHalamanRiwayat(-1)" ${riwayatPage <= 1 ? 'disabled' : ''}>‹ Sebelumnya</button>
+      <span>Halaman ${riwayatPage} dari ${totalPage}</span>
+      <button onclick="gantiHalamanRiwayat(1)" ${riwayatPage >= totalPage ? 'disabled' : ''}>Berikutnya ›</button>
+    </div>`;
+  area.innerHTML = html;
+}
+
+function gantiHalamanRiwayat(arah){
+  riwayatPage += arah;
+  renderRiwayat();
 }
 
 /* ---- Login admin ---- */
