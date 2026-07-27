@@ -110,11 +110,6 @@
   <div id="saldoCard" class="ortu-card hidden">
     <div id="resultOrtu"></div>
   </div>
-
-  <div id="riwayatCard" class="ortu-card hidden" style="text-align:left">
-    <h2 style="font-size:1rem;margin:0 0 4px;color:var(--text)">📜 Riwayat Tabungan</h2>
-    <div id="riwayatArea"></div>
-  </div>
 </div>
 
 <!-- ============ MODAL LOGIN ADMIN ============ -->
@@ -189,7 +184,7 @@
 
 <script>
 // ==== GANTI dengan URL Web App Apps Script kamu ====
-const API_URL = "https://script.google.com/macros/s/AKfycbwfideU8IKAYMtBeh-0Q2ARl8KnmOGMYWjZcECpz-sQR2rRESIh7tEuiWJ1jjOIT0Sp/exec";
+const API_URL = "GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT";
 
 function getPassword(){ return sessionStorage.getItem('adminPass') || ''; }
 
@@ -214,15 +209,12 @@ async function cekOrtu(){
   const kode = document.getElementById('kodeOrtu').value.trim();
   const resultEl = document.getElementById('resultOrtu');
   const saldoCard = document.getElementById('saldoCard');
-  const riwayatCard = document.getElementById('riwayatCard');
   if (!kode){
     saldoCard.classList.remove('hidden');
     showResult('resultOrtu', false, 'Masukkan kode akses dulu.');
     return;
   }
 
-  // tampilkan loading, sembunyikan card riwayat dulu
-  riwayatCard.classList.add('hidden');
   saldoCard.classList.remove('hidden');
   resultEl.className = '';
   resultEl.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat data...</div>';
@@ -236,15 +228,18 @@ async function cekOrtu(){
 
     resultEl.className = '';
     resultEl.innerHTML = `
-      <div class="ortu-nama">${r.nama}</div>
-      <div class="saldo-label">Saldo saat ini</div>
-      <div class="saldo">Rp ${r.saldoTotal.toLocaleString('id-ID')}</div>
-      <div class="info-box">
-        <div>📅 Setoran terakhir: <b>${r.tanggalTerakhir || '-'}</b></div>
-        <div>💰 Nominal terakhir: <b>Rp ${r.nominalTerakhir.toLocaleString('id-ID')}</b></div>
-      </div>`;
+      <div style="text-align:center">
+        <div class="ortu-nama">${r.nama}</div>
+        <div class="saldo-label">Saldo saat ini</div>
+        <div class="saldo">Rp ${r.saldoTotal.toLocaleString('id-ID')}</div>
+        <div class="info-box">
+          <div>📅 Setoran terakhir: <b>${r.tanggalTerakhir || '-'}</b></div>
+          <div>💰 Nominal terakhir: <b>Rp ${r.nominalTerakhir.toLocaleString('id-ID')}</b></div>
+        </div>
+      </div>
+      <h2 style="font-size:1rem;margin:18px 0 4px;color:var(--text);text-align:left">📜 Riwayat Tabungan</h2>
+      <div id="riwayatArea"></div>`;
 
-    riwayatCard.classList.remove('hidden');
     renderRiwayat();
   } catch(err){
     showResult('resultOrtu', false, 'Gagal terhubung ke server. Cek apakah API_URL sudah benar, dan koneksi internet aktif.\n\nDetail: ' + err.message);
