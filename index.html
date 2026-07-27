@@ -26,7 +26,9 @@
   --radius-lg:22px; --radius-md:16px; --radius-sm:10px;
 }
 *{box-sizing:border-box}
-body{ margin:0; font-family:'Figtree',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
+html{ overflow-x:hidden; width:100%; }
+body{ margin:0; font-family:'Figtree',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; overflow-x:hidden; width:100%; }
+.table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
 h1,h2,h3{font-family:'Fredoka',sans-serif}
 .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums}
 .hidden{display:none !important}
@@ -148,6 +150,19 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
   padding:6px 12px; border-radius:100px; font-size:.8rem; font-weight:700; cursor:pointer; white-space:nowrap;
 }
 .toast button:hover{border-color:#fff}
+
+.autocomplete-wrap{position:relative}
+.ac-dropdown{
+  position:absolute; top:100%; left:0; right:0; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius-sm); margin-top:-6px; max-height:230px; overflow-y:auto; z-index:35;
+  box-shadow:0 10px 26px rgba(0,0,0,.1);
+}
+.ac-item{ padding:10px 12px; font-size:.88rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.ac-item:hover{background:var(--surface-2)}
+.ac-item.ac-empty{color:var(--ink-soft); cursor:default}
+.ac-item.ac-empty:hover{background:transparent}
+.ac-absen{color:var(--ink-soft); font-size:.76rem; white-space:nowrap}
+.filter-box{margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -243,8 +258,8 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
     </div>
     <div class="card">
       <div id="warnTunggakan"></div>
-      <button class="btn outline small" onclick="muatDaftarSiswa()" style="width:auto;margin-bottom:10px">Muat / Segarkan Daftar</button>
-      <div id="daftarSiswaArea"><div class="loading-text">Klik "Muat / Segarkan Daftar" untuk mulai.</div></div>
+      <button class="btn outline small" onclick="muatDaftarSiswa()" style="width:auto;margin-bottom:10px">Segarkan</button>
+      <div id="daftarSiswaArea"><div class="loading-text">Memuat...</div></div>
     </div>
     <button id="btnSimpanSemua" class="fab" onclick="simpanSemua()" title="Simpan Semua">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
@@ -264,7 +279,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
         <button class="btn outline small" data-rekapmode="rentang" onclick="gantiRekapMode('rentang')">Rentang Tanggal</button>
       </div>
       <div id="rekapHarianBox">
-        <button class="btn orange" onclick="rekapHarian()">Tampilkan Rekap Hari Terakhir</button>
+        <button class="btn small outline" onclick="rekapHarian()">Segarkan</button>
         <div id="areaRekapHarian"></div>
       </div>
       <div id="rekapRentangBox" class="hidden">
@@ -291,12 +306,15 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
         <button class="btn outline small" data-saldomode="kelas" onclick="gantiSaldoMode('kelas')">Kelas</button>
       </div>
       <div id="saldoSiswaBox">
-        <input type="text" id="absenSaldo" placeholder="Nomor absen">
+        <div class="autocomplete-wrap">
+          <input type="text" id="absenSaldo" placeholder="Cari nama siswa..." autocomplete="off">
+          <div id="dropdownSaldo" class="ac-dropdown hidden"></div>
+        </div>
         <button class="btn purple" onclick="saldoSiswa()">Cek</button>
         <div id="areaSaldoSiswa"></div>
       </div>
       <div id="saldoKelasBox" class="hidden">
-        <button class="btn purple" onclick="saldoKelas()">Tampilkan Saldo Kelas</button>
+        <button class="btn small outline" onclick="saldoKelas()">Segarkan</button>
         <div id="areaSaldoKelas"></div>
       </div>
     </div>
@@ -311,7 +329,10 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
     </div>
     <div class="card">
       <div class="desc">Cek riwayat transaksi siswa. Setiap baris bisa diubah nominalnya atau dihapus manual.</div>
-      <input type="text" id="absenRiwayat" placeholder="Nomor absen">
+      <div class="autocomplete-wrap">
+        <input type="text" id="absenRiwayat" placeholder="Cari nama siswa..." autocomplete="off">
+        <div id="dropdownRiwayat" class="ac-dropdown hidden"></div>
+      </div>
       <button class="btn pink" onclick="cekRiwayatAdmin()">Cek</button>
       <div id="areaRiwayatAdmin"></div>
     </div>
@@ -325,7 +346,10 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
       <h2 class="page-title">Ranking Tabungan</h2>
     </div>
     <div class="card">
-      <button class="btn gray" onclick="ranking()">Tampilkan Ranking</button>
+      <div class="between" style="margin-bottom:6px">
+        <div></div>
+        <button class="btn small outline" onclick="ranking()">Segarkan</button>
+      </div>
       <div id="areaRanking"></div>
     </div>
   </div>
@@ -541,6 +565,9 @@ function goToPage(page){
   document.getElementById('page-home').classList.add('hidden');
   document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
   document.getElementById('page-' + page).classList.remove('hidden');
+  if (page === 'ranking') ranking();
+  if (page === 'rekap') rekapHarian();
+  if (page === 'input') muatDaftarSiswa();
 }
 
 /* ---- A. Input & Edit ---- */
@@ -629,21 +656,20 @@ async function simpanSemua(){
   fab.disabled = true;
   fab.innerHTML = '<span class="spinner" style="width:20px;height:20px;margin:0;border-color:rgba(255,255,255,.4);border-top-color:#fff"></span>';
 
-  let sukses = 0;
-  const gagal = [];
-  for (const item of daftar) {
-    try {
-      const r = await call('simpanTransaksi', { absen: item.absen, nominal: item.nominal });
-      if (r.ok) sukses++; else gagal.push('Absen ' + item.absen + ': ' + r.pesan);
-    } catch(err){ gagal.push('Absen ' + item.absen + ': ' + err.message); }
+  try {
+    const r = await call('simpanBanyakTransaksi', { items: daftar });
+    fab.disabled = false;
+    fab.innerHTML = asalIsi;
+    if (!r.ok){ alert(r.pesan || 'Gagal menyimpan.'); return; }
+    let pesan = 'Berhasil menyimpan ' + r.sukses + ' dari ' + daftar.length + ' transaksi.';
+    if (r.gagal && r.gagal.length) pesan += '\n\nGagal:\n' + r.gagal.join('\n');
+    alert(pesan);
+    muatDaftarSiswa();
+  } catch(err){
+    fab.disabled = false;
+    fab.innerHTML = asalIsi;
+    alert('Gagal terhubung ke server: ' + err.message);
   }
-  fab.disabled = false;
-  fab.innerHTML = asalIsi;
-
-  let pesan = 'Berhasil menyimpan ' + sukses + ' dari ' + daftar.length + ' transaksi.';
-  if (gagal.length) pesan += '\n\nGagal:\n' + gagal.join('\n');
-  alert(pesan);
-  muatDaftarSiswa();
 }
 
 /* ---- B. Rekap ---- */
@@ -665,11 +691,14 @@ async function rekapHarian(){
       <div class="summary-line">Tanggal: <b>${r.tanggal || '-'}</b></div>
       <button class="btn small outline" id="btnDownloadRekapHarian">Download Excel</button>
     </div>
+    <input type="text" class="filter-box" placeholder="Cari nama..." oninput="filterTabel(this, 'areaRekapHarian')">
+    <div class="table-scroll">
     <table>
       <thead><tr><th>Absen</th><th>Nama</th><th style="text-align:right">Nominal</th></tr></thead>
       <tbody>${r.transaksi.map(x => `<tr><td>${x.absen}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.nominal)}</td></tr>`).join('') || '<tr><td colspan="3">Belum ada transaksi.</td></tr>'}</tbody>
       <tfoot><tr><td colspan="2">Total</td><td class="mono" style="text-align:right">${rupiah(r.total)}</td></tr></tfoot>
     </table>
+    </div>
     <div class="summary-line">Saldo belum disetor ke bendahara: <b>${rupiah(r.saldoBelumSetor)}</b></div>`;
   document.getElementById('btnDownloadRekapHarian').onclick = () => downloadRekapExcel(
     lastRekapHarian, ['Absen','Nama','Nominal'], r.total,
@@ -690,11 +719,14 @@ async function rekapRentang(){
       <div class="summary-line">Periode: <b>${tglMulai}</b> s/d <b>${tglAkhir}</b></div>
       <button class="btn small outline" id="btnDownloadRekapRentang">Download Excel</button>
     </div>
+    <input type="text" class="filter-box" placeholder="Cari nama..." oninput="filterTabel(this, 'areaRekapRentang')">
+    <div class="table-scroll">
     <table>
       <thead><tr><th>Tanggal</th><th>Absen</th><th>Nama</th><th style="text-align:right">Nominal</th></tr></thead>
       <tbody>${r.transaksi.map(x => `<tr><td>${x.tanggal}</td><td>${x.absen}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.nominal)}</td></tr>`).join('') || '<tr><td colspan="4">Tidak ada transaksi pada rentang ini.</td></tr>'}</tbody>
       <tfoot><tr><td colspan="3">Total</td><td class="mono" style="text-align:right">${rupiah(r.total)}</td></tr></tfoot>
-    </table>`;
+    </table>
+    </div>`;
   document.getElementById('btnDownloadRekapRentang').onclick = () => downloadRekapExcel(
     lastRekapRentang, ['Tanggal','Absen','Nama','Nominal'], r.total,
     'Periode: ' + tglMulai + ' s/d ' + tglAkhir, 'Rekap_' + tglMulai + '_' + tglAkhir
@@ -707,9 +739,13 @@ function gantiSaldoMode(mode){
   document.querySelectorAll('[data-saldomode]').forEach(b => b.classList.toggle('active', b.dataset.saldomode === mode));
   document.getElementById('saldoSiswaBox').classList.toggle('hidden', mode !== 'siswa');
   document.getElementById('saldoKelasBox').classList.toggle('hidden', mode !== 'kelas');
+  if (mode === 'kelas') saldoKelas();
 }
+let selectedAbsenSaldo = '';
 async function saldoSiswa(){
-  const absen = document.getElementById('absenSaldo').value.trim();
+  const raw = document.getElementById('absenSaldo').value.trim();
+  const absen = selectedAbsenSaldo || raw.replace(/\D/g, '');
+  if (!absen){ showError('areaSaldoSiswa', 'Ketik nama siswa lalu pilih dari daftar, atau isi nomor absen langsung.'); return; }
   showLoading('areaSaldoSiswa');
   const r = await call('saldoSatu', { absen: absen });
   if (!r.ok){ showError('areaSaldoSiswa', r.pesan); return; }
@@ -730,11 +766,14 @@ async function saldoKelas(){
       <div class="summary-line">Total keseluruhan: <b class="mono">${rupiah(r.totalKeseluruhan)}</b></div>
       <button class="btn small outline" id="btnDownloadSaldoKelas">Download Excel</button>
     </div>
+    <input type="text" class="filter-box" placeholder="Cari nama..." oninput="filterTabel(this, 'areaSaldoKelas')">
+    <div class="table-scroll">
     <table>
       <thead><tr><th>Absen</th><th>Nama</th><th style="text-align:right">Saldo</th></tr></thead>
       <tbody>${r.list.map(x => `<tr><td>${x.absen}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.saldo)}</td></tr>`).join('')}</tbody>
       <tfoot><tr><td colspan="2">Total</td><td class="mono" style="text-align:right">${rupiah(r.totalKeseluruhan)}</td></tr></tfoot>
-    </table>`;
+    </table>
+    </div>`;
   document.getElementById('btnDownloadSaldoKelas').onclick = () => downloadSaldoExcel(
     lastSaldoKelas, ['Absen','Nama','Saldo'], r.totalKeseluruhan,
     'Saldo per tanggal: ' + tglHariIni, 'Saldo_Kelas_' + tglHariIni.replace(/ /g,'_')
@@ -742,12 +781,62 @@ async function saldoKelas(){
 }
 
 /* ---- D. Riwayat ---- */
+let daftarSiswaCache = null;
+async function getDaftarSiswaCache(){
+  if (daftarSiswaCache) return daftarSiswaCache;
+  const r = await call('listSiswa');
+  daftarSiswaCache = r.ok ? r.list : [];
+  return daftarSiswaCache;
+}
+
+// Live search generik: ketik nama -> muncul dropdown -> klik untuk pilih
+function attachLiveSearch(inputEl, dropdownEl, onSelect, onTyping){
+  inputEl.addEventListener('input', async () => {
+    if (onTyping) onTyping();
+    const q = inputEl.value.trim().toLowerCase();
+    if (!q){ dropdownEl.classList.add('hidden'); dropdownEl.innerHTML = ''; return; }
+    const list = await getDaftarSiswaCache();
+    const matches = list.filter(s => s.nama.toLowerCase().includes(q)).slice(0, 8);
+    if (!matches.length){
+      dropdownEl.innerHTML = '<div class="ac-item ac-empty">Nama tidak ditemukan</div>';
+      dropdownEl.classList.remove('hidden');
+      return;
+    }
+    dropdownEl.innerHTML = matches.map(s =>
+      `<div class="ac-item" data-absen="${s.absen}" data-nama="${s.nama}"><span>${s.nama}</span><span class="ac-absen">Absen ${s.absen}</span></div>`
+    ).join('');
+    dropdownEl.classList.remove('hidden');
+    dropdownEl.querySelectorAll('.ac-item[data-absen]').forEach(item => {
+      item.onclick = () => {
+        onSelect(item.dataset.absen, item.dataset.nama);
+        dropdownEl.classList.add('hidden');
+      };
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) dropdownEl.classList.add('hidden');
+  });
+}
+
+// Filter tabel yang sudah ditampilkan (Rekap & Saldo Kelas) berdasarkan nama, live saat mengetik
+function filterTabel(inputEl, containerId){
+  const q = inputEl.value.trim().toLowerCase();
+  const container = document.getElementById(containerId);
+  const rows = container.querySelectorAll('table tbody tr');
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
 let riwayatAdminAbsen = '';
 let riwayatAdminNama = '';
 let riwayatAdminData = [];
 
+let selectedAbsenRiwayat = '';
 async function cekRiwayatAdmin(){
-  const absen = document.getElementById('absenRiwayat').value.trim();
+  const raw = document.getElementById('absenRiwayat').value.trim();
+  const absen = selectedAbsenRiwayat || raw.replace(/\D/g, '');
+  if (!absen){ showError('areaRiwayatAdmin', 'Ketik nama siswa lalu pilih dari daftar, atau isi nomor absen langsung.'); return; }
   riwayatAdminAbsen = absen;
   showLoading('areaRiwayatAdmin');
   const r = await call('riwayat', { absen: absen });
@@ -852,6 +941,27 @@ async function ranking(){
       <tbody>${r.ranking.slice(0,3).map((x,i) => `<tr><td>${i+1}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.total)}</td></tr>`).join('') || '<tr><td colspan="3">Belum ada data.</td></tr>'}</tbody>
     </table>`;
 }
+
+attachLiveSearch(
+  document.getElementById('absenSaldo'),
+  document.getElementById('dropdownSaldo'),
+  (absen, nama) => {
+    selectedAbsenSaldo = absen;
+    document.getElementById('absenSaldo').value = nama;
+    saldoSiswa();
+  },
+  () => { selectedAbsenSaldo = ''; }
+);
+attachLiveSearch(
+  document.getElementById('absenRiwayat'),
+  document.getElementById('dropdownRiwayat'),
+  (absen, nama) => {
+    selectedAbsenRiwayat = absen;
+    document.getElementById('absenRiwayat').value = nama;
+    cekRiwayatAdmin();
+  },
+  () => { selectedAbsenRiwayat = ''; }
+);
 
 if (getPassword()){ login(); }
 </script>
