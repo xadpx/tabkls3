@@ -184,7 +184,7 @@
 
 <script>
 // ==== GANTI dengan URL Web App Apps Script kamu ====
-const API_URL = "GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT";
+const API_URL = "https://script.google.com/macros/s/AKfycbwfideU8IKAYMtBeh-0Q2ARl8KnmOGMYWjZcECpz-sQR2rRESIh7tEuiWJ1jjOIT0Sp/exec";
 
 function getPassword(){ return sessionStorage.getItem('adminPass') || ''; }
 
@@ -229,7 +229,7 @@ async function cekOrtu(){
     resultEl.className = '';
     resultEl.innerHTML = `
       <div style="text-align:center">
-        <div class="ortu-nama">${r.nama}</div>
+        <div class="ortu-nama">Absen ${r.absen}</div>
         <div class="saldo-label">Saldo saat ini</div>
         <div class="saldo">Rp ${r.saldoTotal.toLocaleString('id-ID')}</div>
         <div class="info-box">
