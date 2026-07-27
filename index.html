@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tabungan Siswa</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --accent:#22c55e; --accent2:#3b82f6;
+    --text:#e2e8f0; --muted:#94a3b8; --danger:#ef4444; --border:#334155;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+    background:var(--bg); color:var(--text); min-height:100vh;
+  }
+  .topbar{
+    display:flex; justify-content:flex-end; padding:14px 20px;
+  }
+  .topbar button{
+    background:transparent; border:1px solid var(--border); color:var(--muted);
+    padding:6px 14px; border-radius:8px; font-size:.82rem; cursor:pointer;
+  }
+  .topbar button:hover{color:var(--text); border-color:var(--muted)}
+  .wrap{max-width:720px; margin:0 auto; padding:0 20px 40px}
+  h1{font-size:1.3rem; margin:0 0 4px}
+  .sub{color:var(--muted); font-size:.85rem; margin-bottom:20px}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:18px; margin-bottom:16px;
+  }
+  .card h2{font-size:1rem; margin:0 0 12px; display:flex; align-items:center; gap:8px}
+  input, textarea{
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border);
+    background:#0f172a; color:var(--text); font-size:.95rem; margin-bottom:8px;
+  }
+  textarea{min-height:80px; font-family:monospace; resize:vertical}
+  button.main{
+    background:var(--accent2); color:#fff; border:none; padding:10px 16px;
+    border-radius:8px; font-size:.95rem; cursor:pointer; width:100%;
+  }
+  button.main:hover{opacity:.9}
+  button.secondary{background:var(--accent)}
+  button.danger{background:var(--danger)}
+  .result{
+    margin-top:10px; padding:10px 12px; border-radius:8px; font-size:.88rem;
+    white-space:pre-wrap; background:#0f172a; border:1px solid var(--border);
+  }
+  .result.ok{border-color:var(--accent); color:#bbf7d0}
+  .result.err{border-color:var(--danger); color:#fecaca}
+  .hidden{display:none}
+  .row{display:flex; gap:8px}
+  .row > *{flex:1}
+
+  /* Tampilan ortu */
+  .ortu-card{
+    background:var(--card); border:1px solid var(--border); border-radius:16px;
+    padding:28px 24px; max-width:380px; margin:6vh auto 0; text-align:center;
+  }
+  .ortu-nama{font-size:1.4rem; font-weight:700; margin-bottom:20px}
+  .saldo-label{color:var(--muted); font-size:.85rem}
+  .saldo{font-size:2rem; font-weight:800; color:var(--accent); margin:4px 0 20px}
+  .info-box{
+    background:#0f172a; border:1px solid var(--border); border-radius:10px;
+    padding:14px; text-align:left; font-size:.9rem;
+  }
+  .info-box div{margin-bottom:6px}
+
+  /* Modal login admin */
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.6);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:22px; max-width:320px; width:100%;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button onclick="openLogin()">🔒 Login Admin</button>
+</div>
+
+<!-- ============ TAMPILAN ORANG TUA (default) ============ -->
+<div id="ortuView" class="wrap">
+  <div class="ortu-card">
+    <h1 style="font-size:1.1rem;color:var(--muted);font-weight:500">Cek Tabungan Ananda</h1>
+    <input type="text" id="kodeOrtu" placeholder="Masukkan kode akses">
+    <button class="main" onclick="cekOrtu()">Cek Saldo</button>
+    <div id="resultOrtu"></div>
+  </div>
+</div>
+
+<!-- ============ MODAL LOGIN ADMIN ============ -->
+<div id="loginOverlay" class="overlay hidden">
+  <div class="modal">
+    <h2 style="margin-top:0">🔒 Login Admin</h2>
+    <input type="password" id="passwordInput" placeholder="Password">
+    <div class="row">
+      <button class="main" onclick="login()">Masuk</button>
+      <button class="main" style="background:transparent;border:1px solid var(--border)" onclick="closeLogin()">Batal</button>
+    </div>
+    <div id="loginResult"></div>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD ADMIN ============ -->
+<div id="dashboard" class="wrap hidden">
+  <h1>🛡️ Tabungan Siswa</h1>
+  <div class="sub">Dashboard Admin</div>
+
+  <div class="card">
+    <h2>⚡ Input Tabungan</h2>
+    <textarea id="inputTabungan" placeholder="Format: absen-nominal, satu baris per siswa&#10;Contoh:&#10;1-5000&#10;2-10000"></textarea>
+    <button class="main" onclick="inputTabungan()">Simpan</button>
+    <div id="resultInput"></div>
+  </div>
+
+  <div class="card">
+    <h2>💰 Cek Saldo &amp; Riwayat</h2>
+    <input type="text" id="absenCek" placeholder="Nomor absen">
+    <button class="main" onclick="cekRiwayat()">Cek</button>
+    <div id="resultRiwayat"></div>
+  </div>
+
+  <div class="card">
+    <h2>✏️ Edit Transaksi Hari Ini</h2>
+    <div class="row">
+      <input type="text" id="absenEdit" placeholder="Absen">
+      <input type="text" id="nominalEdit" placeholder="Nominal baru">
+    </div>
+    <button class="main" onclick="editTabungan()">Update</button>
+    <div id="resultEdit"></div>
+  </div>
+
+  <div class="card">
+    <h2>🏆 Ranking</h2>
+    <button class="main secondary" onclick="ranking()">Tampilkan Ranking</button>
+    <div id="resultRanking"></div>
+  </div>
+
+  <div class="card">
+    <h2>📈 Total Saldo Semua Siswa</h2>
+    <button class="main secondary" onclick="total()">Tampilkan Total</button>
+    <div id="resultTotal"></div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Rekap Transaksi Terakhir</h2>
+    <button class="main secondary" onclick="rekap()">Tampilkan Rekap</button>
+    <div id="resultRekap"></div>
+  </div>
+
+  <div class="card">
+    <h2>🏦 Setor ke Bendahara</h2>
+    <input type="text" id="nominalSetor" placeholder="Nominal setor">
+    <button class="main danger" onclick="setor()">Catat Setoran</button>
+    <div id="resultSetor"></div>
+  </div>
+
+  <button class="main" style="background:transparent;border:1px solid var(--border)" onclick="logout()">Keluar dari Admin</button>
+</div>
+
+<script>
+// ==== GANTI dengan URL Web App Apps Script kamu ====
+const API_URL = "https://script.google.com/macros/s/AKfycbwfideU8IKAYMtBeh-0Q2ARl8KnmOGMYWjZcECpz-sQR2rRESIh7tEuiWJ1jjOIT0Sp/exec";
+
+function getPassword(){ return sessionStorage.getItem('adminPass') || ''; }
+
+async function call(action, extra){
+  const body = Object.assign({ action: action, password: getPassword() }, extra || {});
+  const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body) });
+  return res.json();
+}
+
+function showResult(elId, ok, text){
+  const el = document.getElementById(elId);
+  el.className = 'result ' + (ok ? 'ok' : 'err');
+  el.textContent = text;
+}
+
+/* ---- Tampilan ortu ---- */
+async function cekOrtu(){
+  const kode = document.getElementById('kodeOrtu').value.trim();
+  if (!kode){ showResult('resultOrtu', false, 'Masukkan kode akses dulu.'); return; }
+  const r = await call('ortuInfo', { kode: kode });
+  if (!r.ok){ showResult('resultOrtu', false, r.pesan); return; }
+  document.getElementById('resultOrtu').outerHTML = `
+    <div id="resultOrtu">
+      <div class="ortu-nama">${r.nama}</div>
+      <div class="saldo-label">Saldo saat ini</div>
+      <div class="saldo">Rp ${r.saldoTotal.toLocaleString('id-ID')}</div>
+      <div class="info-box">
+        <div>📅 Setoran terakhir: <b>${r.tanggalTerakhir || '-'}</b></div>
+        <div>💰 Nominal terakhir: <b>Rp ${r.nominalTerakhir.toLocaleString('id-ID')}</b></div>
+      </div>
+    </div>`;
+}
+
+/* ---- Login admin ---- */
+function openLogin(){ document.getElementById('loginOverlay').classList.remove('hidden'); }
+function closeLogin(){ document.getElementById('loginOverlay').classList.add('hidden'); }
+
+async function login(){
+  sessionStorage.setItem('adminPass', document.getElementById('passwordInput').value);
+  const r = await call('login');
+  if (r.ok){
+    closeLogin();
+    document.getElementById('ortuView').classList.add('hidden');
+    document.querySelector('.topbar').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+  } else {
+    showResult('loginResult', false, r.pesan || 'Password salah.');
+  }
+}
+function logout(){
+  sessionStorage.removeItem('adminPass');
+  location.reload();
+}
+
+/* ---- Fitur admin (sama seperti sebelumnya) ---- */
+async function inputTabungan(){
+  const raw = document.getElementById('inputTabungan').value.trim();
+  const items = raw.split('\n').filter(Boolean).map(line => {
+    const parts = line.replace(/[\u2013\u2014]/g,'-').split('-');
+    return { absen: (parts[0]||'').trim(), nominal: (parts[1]||'').trim() };
+  });
+  const r = await call('inputTabungan', { items: items });
+  if (r.ok){
+    let txt = '';
+    if (r.sukses.length) txt += 'Berhasil:\n' + r.sukses.join('\n') + '\n\n';
+    if (r.gagal.length) txt += 'Gagal:\n' + r.gagal.join('\n');
+    showResult('resultInput', true, txt || 'Selesai.');
+  } else {
+    showResult('resultInput', false, r.pesan);
+  }
+}
+
+async function cekRiwayat(){
+  const absen = document.getElementById('absenCek').value.trim();
+  const r = await call('riwayat', { absen: absen });
+  if (r.ok){
+    let txt = 'Nama: ' + r.nama + '\n\n';
+    txt += r.riwayat.length
+      ? r.riwayat.map((x,i) => (i+1)+'. '+x.tanggal+' : Rp '+x.nominal.toLocaleString('id-ID')).join('\n')
+      : 'Belum ada riwayat.';
+    showResult('resultRiwayat', true, txt);
+  } else {
+    showResult('resultRiwayat', false, r.pesan);
+  }
+}
+
+async function editTabungan(){
+  const absen = document.getElementById('absenEdit').value.trim();
+  const nominal = document.getElementById('nominalEdit').value.trim();
+  const r = await call('editTabungan', { absen: absen, nominal: nominal });
+  showResult('resultEdit', r.ok, r.pesan);
+}
+
+async function ranking(){
+  const r = await call('ranking');
+  if (r.ok){
+    const txt = r.ranking.slice(0,10).map((x,i)=> (i+1)+'. '+x.nama+' - Rp '+x.total.toLocaleString('id-ID')).join('\n');
+    showResult('resultRanking', true, txt || 'Belum ada data.');
+  } else {
+    showResult('resultRanking', false, r.pesan);
+  }
+}
+
+async function total(){
+  const r = await call('total');
+  if (r.ok){
+    const txt = r.list.map(x => x.nama+' (Absen '+x.absen+'): Rp '+x.saldo.toLocaleString('id-ID')).join('\n')
+      + '\n\nTOTAL KESELURUHAN: Rp ' + r.totalKeseluruhan.toLocaleString('id-ID');
+    showResult('resultTotal', true, txt);
+  } else {
+    showResult('resultTotal', false, r.pesan);
+  }
+}
+
+async function rekap(){
+  const r = await call('rekap');
+  if (r.ok){
+    let txt = 'Tanggal: ' + (r.tanggal || '-') + '\n\n';
+    txt += r.transaksi.map(x => x.nama+' (Absen '+x.absen+'): Rp '+x.nominal.toLocaleString('id-ID')).join('\n');
+    txt += '\n\nTotal transaksi: Rp ' + r.total.toLocaleString('id-ID');
+    txt += '\nSaldo belum setor: Rp ' + r.saldoBelumSetor.toLocaleString('id-ID');
+    showResult('resultRekap', true, txt);
+  } else {
+    showResult('resultRekap', false, r.pesan);
+  }
+}
+
+async function setor(){
+  const nominal = document.getElementById('nominalSetor').value.trim();
+  const r = await call('setor', { nominal: nominal });
+  if (r.ok){
+    showResult('resultSetor', true, 'Berhasil. Sisa saldo belum setor: Rp ' + r.sisa.toLocaleString('id-ID'));
+  } else {
+    showResult('resultSetor', false, r.pesan);
+  }
+}
+
+// auto-masuk dashboard kalau sesi admin masih ada
+if (getPassword()){
+  login();
+}
+</script>
+</body>
+</html>
