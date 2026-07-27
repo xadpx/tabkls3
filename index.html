@@ -102,8 +102,8 @@
 <!-- ============ TAMPILAN ORANG TUA (default) ============ -->
 <div id="ortuView" class="wrap">
   <div class="ortu-card">
-    <h1 style="font-size:1.1rem;color:var(--muted);font-weight:500">Cek Tabungan Ananda</h1>
-    <input type="text" id="kodeOrtu" placeholder="Masukkan kode akses">
+    <h1 style="font-size:1.1rem;color:var(--muted);font-weight:500">Cek Tabungan Siswa</h1>
+    <input type="text" id="kodeOrtu" placeholder="Masukkan no absen">
     <button class="main" onclick="cekOrtu()">Cek Saldo</button>
   </div>
 
@@ -211,7 +211,7 @@ async function cekOrtu(){
   const saldoCard = document.getElementById('saldoCard');
   if (!kode){
     saldoCard.classList.remove('hidden');
-    showResult('resultOrtu', false, 'Masukkan kode akses dulu.');
+    showResult('resultOrtu', false, 'Masukkan no absen dulu.');
     return;
   }
 
