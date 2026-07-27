@@ -3,108 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tabungan Siswa</title>
+<title>Buku Tabungan Kelas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0f172a; --card:#1e293b; --accent:#22c55e; --accent2:#3b82f6;
-    --text:#e2e8f0; --muted:#94a3b8; --danger:#ef4444; --border:#334155;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; font-family:-apple-system,Segoe UI,Roboto,sans-serif;
-    background:var(--bg); color:var(--text); min-height:100vh;
-  }
-  .topbar{
-    display:flex; justify-content:flex-end; padding:14px 20px;
-  }
-  .topbar button{
-    background:transparent; border:1px solid var(--border); color:var(--muted);
-    padding:6px 14px; border-radius:8px; font-size:.82rem; cursor:pointer;
-  }
-  .topbar button:hover{color:var(--text); border-color:var(--muted)}
-  .wrap{max-width:720px; margin:0 auto; padding:0 20px 40px}
-  h1{font-size:1.3rem; margin:0 0 4px}
-  .sub{color:var(--muted); font-size:.85rem; margin-bottom:20px}
-  .card{
-    background:var(--card); border:1px solid var(--border); border-radius:14px;
-    padding:18px; margin-bottom:16px;
-  }
-  .card h2{font-size:1rem; margin:0 0 12px; display:flex; align-items:center; gap:8px}
-  input, textarea{
-    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border);
-    background:#0f172a; color:var(--text); font-size:.95rem; margin-bottom:8px;
-  }
-  textarea{min-height:80px; font-family:monospace; resize:vertical}
-  button.main{
-    background:var(--accent2); color:#fff; border:none; padding:10px 16px;
-    border-radius:8px; font-size:.95rem; cursor:pointer; width:100%;
-  }
-  button.main:hover{opacity:.9}
-  button.secondary{background:var(--accent)}
-  button.danger{background:var(--danger)}
-  .result{
-    margin-top:10px; padding:10px 12px; border-radius:8px; font-size:.88rem;
-    white-space:pre-wrap; background:#0f172a; border:1px solid var(--border);
-  }
-  .result.ok{border-color:var(--accent); color:#bbf7d0}
-  .result.err{border-color:var(--danger); color:#fecaca}
-  .hidden{display:none !important}
-  .row{display:flex; gap:8px}
-  .row > *{flex:1}
+:root{
+  --bg:#FBF1DC;
+  --surface:#FFFFFF;
+  --surface-2:#FFF8E9;
+  --ink:#2E2115;
+  --ink-soft:#7A6A54;
+  --accent:#D98324;
+  --accent-dark:#B76A18;
+  --accent-soft:#F5DFB4;
+  --sage:#4B7561;
+  --sage-soft:#DEEAE2;
+  --brick:#B5432E;
+  --brick-soft:#F5DAD1;
+  --line:#E9D9BC;
+  --radius-lg:22px;
+  --radius-md:16px;
+  --radius-sm:10px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:'Figtree',sans-serif; background:var(--bg); color:var(--ink);
+  min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Fredoka',sans-serif}
+.mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums}
+.hidden{display:none !important}
 
-  /* Tampilan ortu */
-  .ortu-card{
-    background:var(--card); border:1px solid var(--border); border-radius:16px;
-    padding:28px 24px; max-width:420px; margin:6vh auto 0; text-align:center;
-  }
-  .ortu-nama{font-size:1.4rem; font-weight:700; margin-bottom:20px}
-  .saldo-label{color:var(--muted); font-size:.85rem}
-  .saldo{font-size:2rem; font-weight:800; color:var(--accent); margin:4px 0 20px}
-  .info-box{
-    background:#0f172a; border:1px solid var(--border); border-radius:10px;
-    padding:14px; text-align:left; font-size:.9rem;
-  }
-  .info-box div{margin-bottom:6px}
-  .spinner{
-    width:22px; height:22px; border:3px solid var(--border); border-top-color:var(--accent2);
-    border-radius:50%; margin:14px auto; animation:spin .7s linear infinite;
-  }
-  @keyframes spin{ to{ transform:rotate(360deg);} }
-  .loading-text{color:var(--muted); font-size:.9rem}
-  .riwayat-table{width:100%; border-collapse:collapse; font-size:.85rem; margin-top:14px}
-  .riwayat-table th,.riwayat-table td{padding:6px 4px; text-align:left; border-bottom:1px solid var(--border)}
-  .riwayat-table th{color:var(--muted); font-weight:600}
-  .pagination{display:flex; justify-content:space-between; align-items:center; margin-top:10px; gap:8px}
-  .pagination button{
-    background:transparent; border:1px solid var(--border); color:var(--text);
-    padding:6px 12px; border-radius:8px; font-size:.85rem; cursor:pointer; width:auto;
-  }
-  .pagination button:disabled{opacity:.4; cursor:not-allowed}
-  .pagination span{color:var(--muted); font-size:.82rem}
+.topbar{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:18px 22px; max-width:960px; margin:0 auto;
+}
+.brand{display:flex; align-items:center; gap:10px}
+.brand-mark{
+  width:36px; height:36px; border-radius:10px; background:var(--accent);
+  display:flex; align-items:center; justify-content:center;
+}
+.brand-mark svg{width:20px; height:20px; stroke:#fff}
+.brand-text{font-family:'Fredoka'; font-weight:600; font-size:1.05rem}
+.btn-ghost{
+  background:transparent; border:1.5px solid var(--line); color:var(--ink-soft);
+  padding:8px 16px; border-radius:100px; font-size:.82rem; font-weight:600;
+  cursor:pointer; font-family:'Figtree'; display:flex; align-items:center; gap:6px;
+}
+.btn-ghost:hover{border-color:var(--accent); color:var(--accent-dark)}
+.btn-ghost svg{width:15px; height:15px}
 
-  /* Modal login admin */
-  .overlay{
-    position:fixed; inset:0; background:rgba(0,0,0,.6);
-    display:flex; align-items:center; justify-content:center; padding:20px;
-  }
-  .modal{
-    background:var(--card); border:1px solid var(--border); border-radius:14px;
-    padding:22px; max-width:320px; width:100%;
-  }
+.wrap{max-width:960px; margin:0 auto; padding:0 20px 50px}
+
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+  padding:20px;
+}
+.card + .card{margin-top:16px}
+.card h2{font-size:1.05rem; margin:0 0 4px; font-weight:600}
+.card .desc{color:var(--ink-soft); font-size:.85rem; margin-bottom:16px}
+
+input, textarea, select{
+  width:100%; padding:11px 14px; border-radius:var(--radius-sm); border:1.5px solid var(--line);
+  background:var(--surface-2); color:var(--ink); font-size:.95rem; margin-bottom:10px;
+  font-family:'Figtree'; outline:none;
+}
+input:focus, textarea:focus, select:focus{border-color:var(--accent)}
+button{font-family:'Figtree'}
+.btn{
+  background:var(--accent); color:#fff; border:none; padding:11px 18px;
+  border-radius:var(--radius-sm); font-size:.92rem; font-weight:700; cursor:pointer;
+}
+.btn:hover{background:var(--accent-dark)}
+.btn.sage{background:var(--sage)}
+.btn.sage:hover{background:#3b6350}
+.btn.outline{background:transparent; border:1.5px solid var(--line); color:var(--ink)}
+.btn.outline.active{border-color:var(--accent); color:var(--accent-dark); background:var(--accent-soft)}
+.btn.small{padding:7px 12px; font-size:.8rem; border-radius:8px}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+
+.result{
+  margin-top:10px; padding:12px 14px; border-radius:var(--radius-sm); font-size:.88rem;
+  white-space:pre-wrap; background:var(--surface-2); border:1px solid var(--line); line-height:1.5;
+}
+.result.ok{border-color:var(--sage); background:var(--sage-soft); color:#2c4a3b}
+.result.err{border-color:var(--brick); background:var(--brick-soft); color:#7a2e1f}
+
+.spinner{
+  width:20px; height:20px; border:3px solid var(--line); border-top-color:var(--accent);
+  border-radius:50%; margin:10px auto; animation:spin .7s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg);} }
+.loading-text{color:var(--ink-soft); font-size:.88rem; text-align:center}
+
+table{width:100%; border-collapse:collapse; font-size:.87rem}
+th,td{padding:8px 6px; text-align:left; border-bottom:1px solid var(--line)}
+th{color:var(--ink-soft); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.03em}
+.pagination{display:flex; justify-content:space-between; align-items:center; margin-top:10px; gap:8px}
+.pagination span{color:var(--ink-soft); font-size:.8rem}
+
+.row{display:flex; gap:8px}
+.row > *{flex:1}
+
+.ortu-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+  padding:30px 26px; max-width:420px; margin:8vh auto 0; text-align:center;
+}
+.ortu-nama{font-family:'Fredoka'; font-size:1.3rem; font-weight:600; margin-bottom:18px; color:var(--accent-dark)}
+.saldo-label{color:var(--ink-soft); font-size:.85rem}
+.saldo{font-family:'IBM Plex Mono'; font-size:2.1rem; font-weight:600; color:var(--sage); margin:4px 0 18px}
+.info-box{
+  background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-sm);
+  padding:14px; text-align:left; font-size:.9rem;
+}
+.info-box div{margin-bottom:6px}
+
+.overlay{
+  position:fixed; inset:0; background:rgba(46,33,21,.55);
+  display:flex; align-items:center; justify-content:center; padding:20px; z-index:50;
+}
+.modal{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+  padding:24px; max-width:320px; width:100%;
+}
+
+.bento-nav{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px;
+}
+.bento-item{
+  background:var(--surface); border:1.5px solid var(--line); border-radius:var(--radius-md);
+  padding:16px; cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:10px;
+  transition:border-color .15s, transform .1s;
+}
+.bento-item:hover{border-color:var(--accent-soft)}
+.bento-item.active{border-color:var(--accent); background:var(--accent-soft)}
+.bento-item.input-edit{grid-column:span 2}
+.bento-icon{
+  width:34px; height:34px; border-radius:9px; background:var(--surface-2);
+  display:flex; align-items:center; justify-content:center;
+}
+.bento-item.active .bento-icon{background:#fff}
+.bento-icon svg{width:18px; height:18px; stroke:var(--accent-dark)}
+.bento-title{font-family:'Fredoka'; font-weight:600; font-size:.95rem}
+.bento-sub{font-size:.76rem; color:var(--ink-soft)}
+
+@media (max-width:640px){
+  .bento-nav{grid-template-columns:1fr 1fr}
+  .bento-item.input-edit{grid-column:span 2}
+}
+
+.siswa-row{
+  display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line);
+}
+.siswa-row:last-child{border-bottom:none}
+.siswa-info{flex:1; min-width:0}
+.siswa-nama{font-weight:600; font-size:.92rem}
+.siswa-meta{font-size:.78rem; color:var(--ink-soft)}
+.siswa-input{width:130px; margin-bottom:0; text-align:right; font-family:'IBM Plex Mono'}
+.siswa-status{width:22px; text-align:center; font-size:.9rem}
+
+.subnav{display:flex; gap:8px; margin-bottom:14px}
+.banner-warn{
+  background:var(--brick-soft); border:1px solid var(--brick); color:#7a2e1f;
+  padding:10px 14px; border-radius:var(--radius-sm); font-size:.85rem; margin-bottom:14px;
+}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <button onclick="openLogin()">🔒 Login Admin</button>
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V6a2 2 0 0 1 2-2h9l5 5v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 4v5h5"/><path d="M8 13h8M8 17h5"/></svg>
+    </div>
+    <div class="brand-text">Buku Tabungan Kelas</div>
+  </div>
+  <button class="btn-ghost" onclick="openLogin()">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    Login Admin
+  </button>
 </div>
 
-<!-- ============ TAMPILAN ORANG TUA (default) ============ -->
 <div id="ortuView" class="wrap">
   <div class="ortu-card">
-    <h1 style="font-size:1.1rem;color:var(--muted);font-weight:500">Cek Tabungan Siswa</h1>
-    <input type="text" id="kodeOrtu" placeholder="Masukkan no absen">
-    <button class="main" onclick="cekOrtu()">Cek Saldo</button>
+    <h1 style="font-size:1.1rem;color:var(--ink-soft);font-weight:500;margin-top:0">Cek Tabungan Ananda</h1>
+    <input type="text" id="kodeOrtu" placeholder="Masukkan kode akses">
+    <button class="btn" style="width:100%" onclick="cekOrtu()">Cek Saldo</button>
   </div>
 
   <div id="saldoCard" class="ortu-card hidden">
@@ -112,78 +197,134 @@
   </div>
 </div>
 
-<!-- ============ MODAL LOGIN ADMIN ============ -->
 <div id="loginOverlay" class="overlay hidden">
   <div class="modal">
-    <h2 style="margin-top:0">🔒 Login Admin</h2>
+    <h2 style="margin-top:0">Login Admin</h2>
     <input type="password" id="passwordInput" placeholder="Password">
     <div class="row">
-      <button class="main" onclick="login()">Masuk</button>
-      <button class="main" style="background:transparent;border:1px solid var(--border)" onclick="closeLogin()">Batal</button>
+      <button class="btn" style="width:100%" onclick="login()">Masuk</button>
+      <button class="btn outline" style="width:100%" onclick="closeLogin()">Batal</button>
     </div>
     <div id="loginResult"></div>
   </div>
 </div>
 
-<!-- ============ DASHBOARD ADMIN ============ -->
 <div id="dashboard" class="wrap hidden">
-  <h1>🛡️ Tabungan Siswa</h1>
-  <div class="sub">Dashboard Admin</div>
+  <h1 style="margin-bottom:2px">Dashboard Admin</h1>
+  <div class="desc" style="color:var(--ink-soft);margin-bottom:18px">Kelola tabungan siswa dari sini.</div>
 
-  <div class="card">
-    <h2>⚡ Input Tabungan</h2>
-    <textarea id="inputTabungan" placeholder="Format: absen-nominal, satu baris per siswa&#10;Contoh:&#10;1-5000&#10;2-10000"></textarea>
-    <button class="main" onclick="inputTabungan()">Simpan</button>
-    <div id="resultInput"></div>
+  <div class="bento-nav">
+    <button class="bento-item input-edit active" onclick="switchTab('input')" data-tab="input">
+      <div class="bento-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+      <div>
+        <div class="bento-title">Input &amp; Edit</div>
+        <div class="bento-sub">Catat tabungan hari ini per siswa</div>
+      </div>
+    </button>
+    <button class="bento-item" onclick="switchTab('rekap')" data-tab="rekap">
+      <div class="bento-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3M9 12h6M9 16h4"/></svg></div>
+      <div>
+        <div class="bento-title">Rekap</div>
+        <div class="bento-sub">Harian &amp; rentang tanggal</div>
+      </div>
+    </button>
+    <button class="bento-item" onclick="switchTab('saldo')" data-tab="saldo">
+      <div class="bento-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14" r="1"/></svg></div>
+      <div>
+        <div class="bento-title">Saldo</div>
+        <div class="bento-sub">Per siswa &amp; kelas</div>
+      </div>
+    </button>
+    <button class="bento-item" onclick="switchTab('riwayat')" data-tab="riwayat">
+      <div class="bento-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+      <div>
+        <div class="bento-title">Riwayat</div>
+        <div class="bento-sub">Transaksi per siswa</div>
+      </div>
+    </button>
+    <button class="bento-item" onclick="switchTab('ranking')" data-tab="ranking">
+      <div class="bento-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0Z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg></div>
+      <div>
+        <div class="bento-title">Ranking</div>
+        <div class="bento-sub">Peringkat tabungan</div>
+      </div>
+    </button>
   </div>
 
-  <div class="card">
-    <h2>💰 Cek Saldo &amp; Riwayat</h2>
-    <input type="text" id="absenCek" placeholder="Nomor absen">
-    <button class="main" onclick="cekRiwayat()">Cek</button>
-    <div id="resultRiwayat"></div>
-  </div>
-
-  <div class="card">
-    <h2>✏️ Edit Transaksi Hari Ini</h2>
-    <div class="row">
-      <input type="text" id="absenEdit" placeholder="Absen">
-      <input type="text" id="nominalEdit" placeholder="Nominal baru">
+  <div id="panel-input" class="panel">
+    <div class="card">
+      <h2>Input &amp; Edit Tabungan</h2>
+      <div class="desc">Isi nominal di samping nama siswa, lalu klik Simpan. Siswa yang sudah tercatat hari ini bisa langsung diubah nominalnya.</div>
+      <div id="warnTunggakan"></div>
+      <button class="btn outline small" onclick="muatDaftarSiswa()" style="width:auto;margin-bottom:10px">Muat / Segarkan Daftar</button>
+      <div id="daftarSiswaArea"><div class="loading-text">Klik "Muat / Segarkan Daftar" untuk mulai.</div></div>
     </div>
-    <button class="main" onclick="editTabungan()">Update</button>
-    <div id="resultEdit"></div>
   </div>
 
-  <div class="card">
-    <h2>🏆 Ranking</h2>
-    <button class="main secondary" onclick="ranking()">Tampilkan Ranking</button>
-    <div id="resultRanking"></div>
+  <div id="panel-rekap" class="panel hidden">
+    <div class="card">
+      <h2>Rekap Transaksi</h2>
+      <div class="subnav">
+        <button class="btn outline small active" data-rekapmode="harian" onclick="gantiRekapMode('harian')">Harian</button>
+        <button class="btn outline small" data-rekapmode="rentang" onclick="gantiRekapMode('rentang')">Rentang Tanggal</button>
+      </div>
+      <div id="rekapHarianBox">
+        <button class="btn sage" onclick="rekapHarian()">Tampilkan Rekap Hari Terakhir</button>
+        <div id="resultRekapHarian"></div>
+      </div>
+      <div id="rekapRentangBox" class="hidden">
+        <div class="row">
+          <input type="date" id="tglMulai">
+          <input type="date" id="tglAkhir">
+        </div>
+        <button class="btn sage" onclick="rekapRentang()">Tampilkan</button>
+        <div id="resultRekapRentang"></div>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>📈 Total Saldo Semua Siswa</h2>
-    <button class="main secondary" onclick="total()">Tampilkan Total</button>
-    <div id="resultTotal"></div>
+  <div id="panel-saldo" class="panel hidden">
+    <div class="card">
+      <h2>Saldo</h2>
+      <div class="subnav">
+        <button class="btn outline small active" data-saldomode="siswa" onclick="gantiSaldoMode('siswa')">Per Siswa</button>
+        <button class="btn outline small" data-saldomode="kelas" onclick="gantiSaldoMode('kelas')">Kelas</button>
+      </div>
+      <div id="saldoSiswaBox">
+        <input type="text" id="absenSaldo" placeholder="Nomor absen">
+        <button class="btn sage" onclick="saldoSiswa()">Cek</button>
+        <div id="resultSaldoSiswa"></div>
+      </div>
+      <div id="saldoKelasBox" class="hidden">
+        <button class="btn sage" onclick="saldoKelas()">Tampilkan Saldo Kelas</button>
+        <div id="resultSaldoKelas"></div>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>📋 Rekap Transaksi Terakhir</h2>
-    <button class="main secondary" onclick="rekap()">Tampilkan Rekap</button>
-    <div id="resultRekap"></div>
+  <div id="panel-riwayat" class="panel hidden">
+    <div class="card">
+      <h2>Riwayat Transaksi</h2>
+      <input type="text" id="absenRiwayat" placeholder="Nomor absen">
+      <button class="btn sage" onclick="cekRiwayatAdmin()">Cek</button>
+      <div id="resultRiwayatAdmin"></div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>🏦 Setor ke Bendahara</h2>
-    <input type="text" id="nominalSetor" placeholder="Nominal setor">
-    <button class="main danger" onclick="setor()">Catat Setoran</button>
-    <div id="resultSetor"></div>
+  <div id="panel-ranking" class="panel hidden">
+    <div class="card">
+      <h2>Ranking Tabungan</h2>
+      <button class="btn sage" onclick="ranking()">Tampilkan Ranking</button>
+      <div id="resultRanking"></div>
+    </div>
   </div>
 
-  <button class="main" style="background:transparent;border:1px solid var(--border)" onclick="logout()">Keluar dari Admin</button>
+  <div class="card" style="margin-top:24px">
+    <button class="btn outline" style="width:100%" onclick="logout()">Keluar dari Admin</button>
+  </div>
 </div>
 
 <script>
-// ==== GANTI dengan URL Web App Apps Script kamu ====
 const API_URL = "https://script.google.com/macros/s/AKfycbwfideU8IKAYMtBeh-0Q2ARl8KnmOGMYWjZcECpz-sQR2rRESIh7tEuiWJ1jjOIT0Sp/exec";
 
 function getPassword(){ return sessionStorage.getItem('adminPass') || ''; }
@@ -200,10 +341,9 @@ function showResult(elId, ok, text){
   el.textContent = text;
 }
 
-/* ---- Tampilan ortu ---- */
 let riwayatData = [];
 let riwayatPage = 1;
-const RIWAYAT_PER_HALAMAN = 10;
+const PER_HALAMAN = 10;
 
 async function cekOrtu(){
   const kode = document.getElementById('kodeOrtu').value.trim();
@@ -211,10 +351,9 @@ async function cekOrtu(){
   const saldoCard = document.getElementById('saldoCard');
   if (!kode){
     saldoCard.classList.remove('hidden');
-    showResult('resultOrtu', false, 'Masukkan no absen dulu.');
+    showResult('resultOrtu', false, 'Masukkan kode akses dulu.');
     return;
   }
-
   saldoCard.classList.remove('hidden');
   resultEl.className = '';
   resultEl.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat data...</div>';
@@ -222,65 +361,49 @@ async function cekOrtu(){
   try {
     const r = await call('ortuInfo', { kode: kode });
     if (!r.ok){ showResult('resultOrtu', false, r.pesan); return; }
-
     riwayatData = r.riwayat || [];
     riwayatPage = 1;
-
     resultEl.className = '';
     resultEl.innerHTML = `
       <div style="text-align:center">
         <div class="ortu-nama">Absen ${r.absen}</div>
         <div class="saldo-label">Saldo saat ini</div>
-        <div class="saldo">Rp ${r.saldoTotal.toLocaleString('id-ID')}</div>
+        <div class="saldo mono">Rp ${r.saldoTotal.toLocaleString('id-ID')}</div>
         <div class="info-box">
-          <div>📅 Setoran terakhir: <b>${r.tanggalTerakhir || '-'}</b></div>
-          <div>💰 Nominal terakhir: <b>Rp ${r.nominalTerakhir.toLocaleString('id-ID')}</b></div>
+          <div>Setoran terakhir: <b>${r.tanggalTerakhir || '-'}</b></div>
+          <div>Nominal terakhir: <b class="mono">Rp ${r.nominalTerakhir.toLocaleString('id-ID')}</b></div>
         </div>
       </div>
-      <h2 style="font-size:1rem;margin:18px 0 4px;color:var(--text);text-align:left">📜 Riwayat Tabungan</h2>
+      <h2 style="font-size:1rem;margin:18px 0 4px;color:var(--ink);text-align:left">Riwayat Tabungan</h2>
       <div id="riwayatArea"></div>`;
-
     renderRiwayat();
   } catch(err){
-    showResult('resultOrtu', false, 'Gagal terhubung ke server. Cek apakah API_URL sudah benar, dan koneksi internet aktif.\n\nDetail: ' + err.message);
+    showResult('resultOrtu', false, 'Gagal terhubung ke server. Cek koneksi internet.\n\nDetail: ' + err.message);
   }
 }
 
 function renderRiwayat(){
   const area = document.getElementById('riwayatArea');
   if (!area) return;
-  if (!riwayatData.length){
-    area.innerHTML = '<div class="loading-text" style="margin-top:14px">Belum ada riwayat tabungan.</div>';
-    return;
-  }
-  const totalPage = Math.ceil(riwayatData.length / RIWAYAT_PER_HALAMAN);
+  if (!riwayatData.length){ area.innerHTML = '<div class="loading-text">Belum ada riwayat tabungan.</div>'; return; }
+  const totalPage = Math.ceil(riwayatData.length / PER_HALAMAN);
   if (riwayatPage > totalPage) riwayatPage = totalPage;
   if (riwayatPage < 1) riwayatPage = 1;
-
-  const start = (riwayatPage - 1) * RIWAYAT_PER_HALAMAN;
-  const rows = riwayatData.slice(start, start + RIWAYAT_PER_HALAMAN);
-
-  let html = `
-    <table class="riwayat-table">
+  const start = (riwayatPage - 1) * PER_HALAMAN;
+  const rows = riwayatData.slice(start, start + PER_HALAMAN);
+  area.innerHTML = `
+    <table>
       <thead><tr><th>Tanggal</th><th style="text-align:right">Nominal</th></tr></thead>
-      <tbody>
-        ${rows.map(x => `<tr><td>${x.tanggal}</td><td style="text-align:right">Rp ${x.nominal.toLocaleString('id-ID')}</td></tr>`).join('')}
-      </tbody>
+      <tbody>${rows.map(x => `<tr><td>${x.tanggal}</td><td class="mono" style="text-align:right">Rp ${x.nominal.toLocaleString('id-ID')}</td></tr>`).join('')}</tbody>
     </table>
     <div class="pagination">
-      <button onclick="gantiHalamanRiwayat(-1)" ${riwayatPage <= 1 ? 'disabled' : ''}>‹ Sebelumnya</button>
+      <button class="btn small outline" onclick="gantiHalamanRiwayat(-1)" ${riwayatPage <= 1 ? 'disabled' : ''}>‹ Sebelumnya</button>
       <span>Halaman ${riwayatPage} dari ${totalPage}</span>
-      <button onclick="gantiHalamanRiwayat(1)" ${riwayatPage >= totalPage ? 'disabled' : ''}>Berikutnya ›</button>
+      <button class="btn small outline" onclick="gantiHalamanRiwayat(1)" ${riwayatPage >= totalPage ? 'disabled' : ''}>Berikutnya ›</button>
     </div>`;
-  area.innerHTML = html;
 }
+function gantiHalamanRiwayat(arah){ riwayatPage += arah; renderRiwayat(); }
 
-function gantiHalamanRiwayat(arah){
-  riwayatPage += arah;
-  renderRiwayat();
-}
-
-/* ---- Login admin ---- */
 function openLogin(){ document.getElementById('loginOverlay').classList.remove('hidden'); }
 function closeLogin(){ document.getElementById('loginOverlay').classList.add('hidden'); }
 
@@ -296,98 +419,137 @@ async function login(){
     showResult('loginResult', false, r.pesan || 'Password salah.');
   }
 }
-function logout(){
-  sessionStorage.removeItem('adminPass');
-  location.reload();
+function logout(){ sessionStorage.removeItem('adminPass'); location.reload(); }
+
+function switchTab(tab){
+  document.querySelectorAll('.bento-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById('panel-' + tab).classList.remove('hidden');
 }
 
-/* ---- Fitur admin (sama seperti sebelumnya) ---- */
-async function inputTabungan(){
-  const raw = document.getElementById('inputTabungan').value.trim();
-  const items = raw.split('\n').filter(Boolean).map(line => {
-    const parts = line.replace(/[\u2013\u2014]/g,'-').split('-');
-    return { absen: (parts[0]||'').trim(), nominal: (parts[1]||'').trim() };
-  });
-  const r = await call('inputTabungan', { items: items });
-  if (r.ok){
-    let txt = '';
-    if (r.sukses.length) txt += 'Berhasil:\n' + r.sukses.join('\n') + '\n\n';
-    if (r.gagal.length) txt += 'Gagal:\n' + r.gagal.join('\n');
-    showResult('resultInput', true, txt || 'Selesai.');
-  } else {
-    showResult('resultInput', false, r.pesan);
+async function muatDaftarSiswa(){
+  const area = document.getElementById('daftarSiswaArea');
+  area.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat daftar siswa...</div>';
+  document.getElementById('warnTunggakan').innerHTML = '';
+  try {
+    const r = await call('listSiswaHariIni');
+    if (!r.ok){ area.innerHTML = '<div class="result err">' + r.pesan + '</div>'; return; }
+    if (r.saldoBelumSetor > 0){
+      document.getElementById('warnTunggakan').innerHTML =
+        '<div class="banner-warn">Saldo belum disetor ke bendahara: Rp ' + r.saldoBelumSetor.toLocaleString('id-ID') + '</div>';
+    }
+    area.innerHTML = r.list.map(s => `
+      <div class="siswa-row" data-absen="${s.absen}">
+        <div class="siswa-info">
+          <div class="siswa-nama">${s.nama}</div>
+          <div class="siswa-meta">Absen ${s.absen} &middot; Saldo Rp ${s.saldo.toLocaleString('id-ID')}</div>
+        </div>
+        <input type="text" class="siswa-input" placeholder="0" value="${s.nominalHariIni ? s.nominalHariIni : ''}">
+        <button class="btn small" onclick="simpanSatuSiswa('${s.absen}', this)">Simpan</button>
+        <span class="siswa-status"></span>
+      </div>`).join('');
+  } catch(err){
+    area.innerHTML = '<div class="result err">Gagal memuat: ' + err.message + '</div>';
   }
 }
 
-async function cekRiwayat(){
-  const absen = document.getElementById('absenCek').value.trim();
+async function simpanSatuSiswa(absen, btnEl){
+  const row = btnEl.closest('.siswa-row');
+  const input = row.querySelector('.siswa-input');
+  const status = row.querySelector('.siswa-status');
+  const nominal = input.value.trim();
+  if (!nominal){ status.textContent = '!'; status.title = 'Isi nominal dulu'; return; }
+  btnEl.disabled = true;
+  status.innerHTML = '<span class="spinner" style="width:14px;height:14px;margin:0"></span>';
+  try {
+    const r = await call('simpanTransaksi', { absen: absen, nominal: nominal });
+    status.textContent = r.ok ? 'OK' : 'X';
+    status.title = r.pesan || '';
+    status.style.color = r.ok ? 'var(--sage)' : 'var(--brick)';
+  } catch(err){
+    status.textContent = 'X';
+    status.title = err.message;
+  }
+  btnEl.disabled = false;
+}
+
+function gantiRekapMode(mode){
+  document.querySelectorAll('[data-rekapmode]').forEach(b => b.classList.toggle('active', b.dataset.rekapmode === mode));
+  document.getElementById('rekapHarianBox').classList.toggle('hidden', mode !== 'harian');
+  document.getElementById('rekapRentangBox').classList.toggle('hidden', mode !== 'rentang');
+}
+async function rekapHarian(){
+  const el = document.getElementById('resultRekapHarian');
+  el.className = ''; el.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat...</div>';
+  const r = await call('rekap');
+  if (!r.ok){ showResult('resultRekapHarian', false, r.pesan); return; }
+  let txt = 'Tanggal: ' + (r.tanggal || '-') + '\n\n';
+  txt += r.transaksi.map(x => x.nama+' (Absen '+x.absen+'): Rp '+x.nominal.toLocaleString('id-ID')).join('\n');
+  txt += '\n\nTotal transaksi: Rp ' + r.total.toLocaleString('id-ID');
+  txt += '\nSaldo belum setor: Rp ' + r.saldoBelumSetor.toLocaleString('id-ID');
+  showResult('resultRekapHarian', true, txt);
+}
+async function rekapRentang(){
+  const tglMulai = document.getElementById('tglMulai').value;
+  const tglAkhir = document.getElementById('tglAkhir').value;
+  if (!tglMulai || !tglAkhir){ showResult('resultRekapRentang', false, 'Pilih tanggal mulai dan akhir dulu.'); return; }
+  const el = document.getElementById('resultRekapRentang');
+  el.className=''; el.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat...</div>';
+  const r = await call('rekapRentang', { tglMulai: tglMulai, tglAkhir: tglAkhir });
+  if (!r.ok){ showResult('resultRekapRentang', false, r.pesan); return; }
+  let txt = r.transaksi.length
+    ? r.transaksi.map(x => x.tanggal+' - '+x.nama+' (Absen '+x.absen+'): Rp '+x.nominal.toLocaleString('id-ID')).join('\n')
+    : 'Tidak ada transaksi pada rentang ini.';
+  txt += '\n\nTotal: Rp ' + r.total.toLocaleString('id-ID');
+  showResult('resultRekapRentang', true, txt);
+}
+
+function gantiSaldoMode(mode){
+  document.querySelectorAll('[data-saldomode]').forEach(b => b.classList.toggle('active', b.dataset.saldomode === mode));
+  document.getElementById('saldoSiswaBox').classList.toggle('hidden', mode !== 'siswa');
+  document.getElementById('saldoKelasBox').classList.toggle('hidden', mode !== 'kelas');
+}
+async function saldoSiswa(){
+  const absen = document.getElementById('absenSaldo').value.trim();
+  const el = document.getElementById('resultSaldoSiswa');
+  el.className=''; el.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat...</div>';
+  const r = await call('saldoSatu', { absen: absen });
+  if (!r.ok){ showResult('resultSaldoSiswa', false, r.pesan); return; }
+  showResult('resultSaldoSiswa', true, r.nama + ' (Absen ' + r.absen + ')\nSaldo: Rp ' + r.saldo.toLocaleString('id-ID'));
+}
+async function saldoKelas(){
+  const el = document.getElementById('resultSaldoKelas');
+  el.className=''; el.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat...</div>';
+  const r = await call('total');
+  if (!r.ok){ showResult('resultSaldoKelas', false, r.pesan); return; }
+  const txt = r.list.map(x => x.nama+' (Absen '+x.absen+'): Rp '+x.saldo.toLocaleString('id-ID')).join('\n')
+    + '\n\nTOTAL KESELURUHAN: Rp ' + r.totalKeseluruhan.toLocaleString('id-ID');
+  showResult('resultSaldoKelas', true, txt);
+}
+
+async function cekRiwayatAdmin(){
+  const absen = document.getElementById('absenRiwayat').value.trim();
+  const el = document.getElementById('resultRiwayatAdmin');
+  el.className=''; el.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat...</div>';
   const r = await call('riwayat', { absen: absen });
-  if (r.ok){
-    let txt = 'Nama: ' + r.nama + '\n\n';
-    txt += r.riwayat.length
-      ? r.riwayat.map((x,i) => (i+1)+'. '+x.tanggal+' : Rp '+x.nominal.toLocaleString('id-ID')).join('\n')
-      : 'Belum ada riwayat.';
-    showResult('resultRiwayat', true, txt);
-  } else {
-    showResult('resultRiwayat', false, r.pesan);
-  }
-}
-
-async function editTabungan(){
-  const absen = document.getElementById('absenEdit').value.trim();
-  const nominal = document.getElementById('nominalEdit').value.trim();
-  const r = await call('editTabungan', { absen: absen, nominal: nominal });
-  showResult('resultEdit', r.ok, r.pesan);
+  if (!r.ok){ showResult('resultRiwayatAdmin', false, r.pesan); return; }
+  let txt = 'Nama: ' + r.nama + '\n\n';
+  txt += r.riwayat.length
+    ? r.riwayat.map((x,i) => (i+1)+'. '+x.tanggal+' : Rp '+x.nominal.toLocaleString('id-ID')).join('\n')
+    : 'Belum ada riwayat.';
+  showResult('resultRiwayatAdmin', true, txt);
 }
 
 async function ranking(){
+  const el = document.getElementById('resultRanking');
+  el.className=''; el.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat...</div>';
   const r = await call('ranking');
-  if (r.ok){
-    const txt = r.ranking.slice(0,10).map((x,i)=> (i+1)+'. '+x.nama+' - Rp '+x.total.toLocaleString('id-ID')).join('\n');
-    showResult('resultRanking', true, txt || 'Belum ada data.');
-  } else {
-    showResult('resultRanking', false, r.pesan);
-  }
+  if (!r.ok){ showResult('resultRanking', false, r.pesan); return; }
+  const txt = r.ranking.slice(0,15).map((x,i)=> (i+1)+'. '+x.nama+' - Rp '+x.total.toLocaleString('id-ID')).join('\n');
+  showResult('resultRanking', true, txt || 'Belum ada data.');
 }
 
-async function total(){
-  const r = await call('total');
-  if (r.ok){
-    const txt = r.list.map(x => x.nama+' (Absen '+x.absen+'): Rp '+x.saldo.toLocaleString('id-ID')).join('\n')
-      + '\n\nTOTAL KESELURUHAN: Rp ' + r.totalKeseluruhan.toLocaleString('id-ID');
-    showResult('resultTotal', true, txt);
-  } else {
-    showResult('resultTotal', false, r.pesan);
-  }
-}
-
-async function rekap(){
-  const r = await call('rekap');
-  if (r.ok){
-    let txt = 'Tanggal: ' + (r.tanggal || '-') + '\n\n';
-    txt += r.transaksi.map(x => x.nama+' (Absen '+x.absen+'): Rp '+x.nominal.toLocaleString('id-ID')).join('\n');
-    txt += '\n\nTotal transaksi: Rp ' + r.total.toLocaleString('id-ID');
-    txt += '\nSaldo belum setor: Rp ' + r.saldoBelumSetor.toLocaleString('id-ID');
-    showResult('resultRekap', true, txt);
-  } else {
-    showResult('resultRekap', false, r.pesan);
-  }
-}
-
-async function setor(){
-  const nominal = document.getElementById('nominalSetor').value.trim();
-  const r = await call('setor', { nominal: nominal });
-  if (r.ok){
-    showResult('resultSetor', true, 'Berhasil. Sisa saldo belum setor: Rp ' + r.sisa.toLocaleString('id-ID'));
-  } else {
-    showResult('resultSetor', false, r.pesan);
-  }
-}
-
-// auto-masuk dashboard kalau sesi admin masih ada
-if (getPassword()){
-  login();
-}
+if (getPassword()){ login(); }
 </script>
 </body>
 </html>
