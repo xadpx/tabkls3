@@ -128,6 +128,26 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 .banner-warn{ background:var(--orange-soft); border:1px solid var(--orange); color:#8a4318; padding:10px 14px; border-radius:var(--radius-sm); font-size:.85rem; margin-bottom:14px; }
 .summary-line{margin-top:10px; font-size:.9rem; color:var(--ink-soft)}
 .summary-line b{color:var(--ink)}
+.fab{
+  position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%;
+  background:var(--blue); color:#fff; border:none; box-shadow:0 6px 18px rgba(59,111,214,.4);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:40;
+}
+.fab svg{width:24px; height:24px; stroke:#fff}
+.fab:hover{filter:brightness(0.92)}
+.fab:disabled{opacity:.5; cursor:not-allowed}
+
+.toast{
+  position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+  background:var(--ink); color:#fff; padding:12px 14px 12px 18px; border-radius:14px;
+  display:flex; align-items:center; gap:14px; font-size:.88rem; box-shadow:0 8px 24px rgba(0,0,0,.25);
+  z-index:60; max-width:90vw;
+}
+.toast button{
+  background:transparent; border:1.5px solid rgba(255,255,255,.35); color:#fff;
+  padding:6px 12px; border-radius:100px; font-size:.8rem; font-weight:700; cursor:pointer; white-space:nowrap;
+}
+.toast button:hover{border-color:#fff}
 </style>
 </head>
 <body>
@@ -159,10 +179,23 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
     <h2 style="margin-top:0">Login Admin</h2>
     <input type="password" id="passwordInput" placeholder="Password">
     <div class="row">
-      <button class="btn" style="width:100%" onclick="login()">Masuk</button>
+      <button class="btn" style="width:100%" id="btnLoginAdmin" onclick="login()">Masuk</button>
       <button class="btn outline" style="width:100%" onclick="closeLogin()">Batal</button>
     </div>
     <div id="loginResult"></div>
+  </div>
+</div>
+
+<div id="editRiwayatOverlay" class="overlay hidden">
+  <div class="modal">
+    <h2 style="margin-top:0">Edit Transaksi</h2>
+    <input type="date" id="editRiwayatTanggal">
+    <input type="text" inputmode="numeric" id="editRiwayatInput" oninput="formatRibuan_(this)">
+    <div class="row">
+      <button class="btn pink" style="width:100%" id="btnSimpanEditRiwayat" onclick="simpanEditRiwayatModal()">Simpan</button>
+      <button class="btn outline" style="width:100%" onclick="closeEditRiwayat()">Batal</button>
+    </div>
+    <div id="editRiwayatResult"></div>
   </div>
 </div>
 
@@ -175,7 +208,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
     <div class="bento-nav">
       <button class="bento-item input-edit c-blue" onclick="goToPage('input')">
         <div class="bento-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
-        <div><div class="bento-title">Input &amp; Edit</div><div class="bento-sub">Catat tabungan hari ini per siswa</div></div>
+        <div><div class="bento-title">Input Tabungan</div><div class="bento-sub">Catat tabungan hari ini per siswa</div></div>
       </button>
       <button class="bento-item c-orange" onclick="goToPage('rekap')">
         <div class="bento-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3M9 12h6M9 16h4"/></svg></div>
@@ -206,14 +239,16 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
     </div>
     <div class="page-header">
       <div class="page-icon" style="background:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
-      <h2 class="page-title">Input &amp; Edit Tabungan</h2>
+      <h2 class="page-title">Input Tabungan</h2>
     </div>
     <div class="card">
-      <div class="desc">Isi nominal di samping nama siswa, lalu klik Simpan. Untuk mengubah atau menghapus transaksi yang sudah tersimpan, buka menu Riwayat.</div>
       <div id="warnTunggakan"></div>
       <button class="btn outline small" onclick="muatDaftarSiswa()" style="width:auto;margin-bottom:10px">Muat / Segarkan Daftar</button>
       <div id="daftarSiswaArea"><div class="loading-text">Klik "Muat / Segarkan Daftar" untuk mulai.</div></div>
     </div>
+    <button id="btnSimpanSemua" class="fab" onclick="simpanSemua()" title="Simpan Semua">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </button>
   </div>
 
   <!-- ===== HALAMAN: REKAP ===== -->
@@ -297,6 +332,8 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 
 </div>
 
+<div id="toastContainer"></div>
+
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbwfideU8IKAYMtBeh-0Q2ARl8KnmOGMYWjZcECpz-sQR2rRESIh7tEuiWJ1jjOIT0Sp/exec";
 
@@ -312,6 +349,17 @@ function showError(elId, text){
 }
 function showLoading(elId){
   document.getElementById(elId).innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat...</div>';
+}
+let toastTimer = null;
+function showUndoToast(pesan, onUndo){
+  const container = document.getElementById('toastContainer');
+  clearTimeout(toastTimer);
+  container.innerHTML = `<div class="toast"><span>${pesan}</span><button id="btnUndoToast">Urungkan</button></div>`;
+  document.getElementById('btnUndoToast').onclick = async () => {
+    container.innerHTML = '';
+    await onUndo();
+  };
+  toastTimer = setTimeout(() => { container.innerHTML = ''; }, 7000);
 }
 async function unduhWorkbook_(sheetTitle, headers, rows, totalLabel, totalValue, tanggalLabel, filename, pakaiParaf){
   const wb = new ExcelJS.Workbook();
@@ -459,7 +507,19 @@ function openLogin(){ document.getElementById('loginOverlay').classList.remove('
 function closeLogin(){ document.getElementById('loginOverlay').classList.add('hidden'); }
 async function login(){
   sessionStorage.setItem('adminPass', document.getElementById('passwordInput').value);
-  const r = await call('login');
+  const btn = document.getElementById('btnLoginAdmin');
+  const asalTombol = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;margin:0;border-color:rgba(255,255,255,.4);border-top-color:#fff"></span>';
+  let r;
+  try {
+    r = await call('login');
+  } catch(err){
+    btn.disabled = false; btn.innerHTML = asalTombol;
+    document.getElementById('loginResult').innerHTML = '<div class="result-msg err">Gagal terhubung ke server: ' + err.message + '</div>';
+    return;
+  }
+  btn.disabled = false; btn.innerHTML = asalTombol;
   if (r.ok){
     closeLogin();
     document.getElementById('ortuView').classList.add('hidden');
@@ -538,11 +598,8 @@ async function muatDaftarSiswa(){
         return `
         <div class="siswa-row">
           <div style="width:28px;color:var(--ink-soft)">${idx + 1}</div>
-          <div class="siswa-info">
-            <div class="siswa-nama">${s.nama}</div>
-            <div class="siswa-meta">Sudah diinput hari ini &mdash; ubah di menu Riwayat</div>
-          </div>
-          <div class="mono" style="width:130px;text-align:right;color:var(--ink-soft)">${rupiah(s.nominalHariIni)}</div>
+          <div class="siswa-info"><div class="siswa-nama">${s.nama}</div></div>
+          <input type="text" class="siswa-input mono" value="${s.nominalHariIni.toLocaleString('id-ID')}" disabled style="color:var(--ink-soft)">
         </div>`;
       }
       return `
@@ -550,32 +607,43 @@ async function muatDaftarSiswa(){
           <div style="width:28px;color:var(--ink-soft)">${idx + 1}</div>
           <div class="siswa-info"><div class="siswa-nama">${s.nama}</div></div>
           <input type="text" inputmode="numeric" class="siswa-input" placeholder="0" oninput="formatRibuan_(this)">
-          <button class="btn small" onclick="simpanSatuSiswa('${s.absen}', this)">Simpan</button>
-          <span class="siswa-status"></span>
         </div>`;
     }).join('');
   } catch(err){
     area.innerHTML = '<div class="result-msg err">Gagal memuat: ' + err.message + '</div>';
   }
 }
-async function simpanSatuSiswa(absen, btnEl){
-  const row = btnEl.closest('.siswa-row');
-  const input = row.querySelector('.siswa-input');
-  const status = row.querySelector('.siswa-status');
-  const nominal = angkaMentah_(input);
-  if (!nominal){ status.textContent = '!'; status.title = 'Isi nominal dulu'; return; }
-  btnEl.disabled = true;
-  status.innerHTML = '<span class="spinner" style="width:14px;height:14px;margin:0"></span>';
-  try {
-    const r = await call('simpanTransaksi', { absen: absen, nominal: nominal });
-    if (r.ok){
-      status.textContent = 'OK'; status.style.color = 'var(--blue)';
-      setTimeout(() => muatDaftarSiswa(), 600);
-    } else {
-      status.textContent = 'X'; status.title = r.pesan || ''; status.style.color = 'var(--pink)';
-    }
-  } catch(err){ status.textContent = 'X'; status.title = err.message; }
-  btnEl.disabled = false;
+
+async function simpanSemua(){
+  const rows = document.querySelectorAll('#daftarSiswaArea .siswa-row[data-absen]');
+  const fab = document.getElementById('btnSimpanSemua');
+  const daftar = [];
+  rows.forEach(row => {
+    const input = row.querySelector('.siswa-input');
+    const nominal = angkaMentah_(input);
+    if (nominal) daftar.push({ absen: row.dataset.absen, nominal: nominal });
+  });
+  if (!daftar.length){ alert('Belum ada nominal yang diisi.'); return; }
+
+  const asalIsi = fab.innerHTML;
+  fab.disabled = true;
+  fab.innerHTML = '<span class="spinner" style="width:20px;height:20px;margin:0;border-color:rgba(255,255,255,.4);border-top-color:#fff"></span>';
+
+  let sukses = 0;
+  const gagal = [];
+  for (const item of daftar) {
+    try {
+      const r = await call('simpanTransaksi', { absen: item.absen, nominal: item.nominal });
+      if (r.ok) sukses++; else gagal.push('Absen ' + item.absen + ': ' + r.pesan);
+    } catch(err){ gagal.push('Absen ' + item.absen + ': ' + err.message); }
+  }
+  fab.disabled = false;
+  fab.innerHTML = asalIsi;
+
+  let pesan = 'Berhasil menyimpan ' + sukses + ' dari ' + daftar.length + ' transaksi.';
+  if (gagal.length) pesan += '\n\nGagal:\n' + gagal.join('\n');
+  alert(pesan);
+  muatDaftarSiswa();
 }
 
 /* ---- B. Rekap ---- */
@@ -675,6 +743,8 @@ async function saldoKelas(){
 
 /* ---- D. Riwayat ---- */
 let riwayatAdminAbsen = '';
+let riwayatAdminNama = '';
+let riwayatAdminData = [];
 
 async function cekRiwayatAdmin(){
   const absen = document.getElementById('absenRiwayat').value.trim();
@@ -682,6 +752,8 @@ async function cekRiwayatAdmin(){
   showLoading('areaRiwayatAdmin');
   const r = await call('riwayat', { absen: absen });
   if (!r.ok){ showError('areaRiwayatAdmin', r.pesan); return; }
+  riwayatAdminNama = r.nama;
+  riwayatAdminData = r.riwayat;
   renderRiwayatAdmin_(r.nama, r.riwayat);
 }
 function renderRiwayatAdmin_(nama, riwayat){
@@ -690,37 +762,83 @@ function renderRiwayatAdmin_(nama, riwayat){
     <table>
       <thead><tr><th>No</th><th>Tanggal</th><th style="text-align:right">Nominal</th><th></th></tr></thead>
       <tbody>${riwayat.map((x,i) => `
-        <tr data-row="${x.rowNumber}">
+        <tr>
           <td>${i+1}</td>
           <td>${x.tanggal}</td>
-          <td style="text-align:right">
-            <input type="text" inputmode="numeric" class="riwayat-edit-input mono" style="width:120px;margin-bottom:0;text-align:right" value="${x.nominal.toLocaleString('id-ID')}" oninput="formatRibuan_(this)">
-          </td>
-          <td style="white-space:nowrap">
-            <button class="btn small pink" onclick="simpanEditRiwayat(this, ${x.rowNumber})">Simpan</button>
-            <button class="btn small outline" onclick="hapusRiwayat(this, ${x.rowNumber})">Hapus</button>
+          <td class="mono" style="text-align:right">${rupiah(x.nominal)}</td>
+          <td style="text-align:center">
+            <button class="btn small outline" style="padding:6px 9px" onclick="openEditRiwayat(${x.rowNumber}, ${x.nominal}, '${x.tanggalISO}')" title="Edit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;vertical-align:middle"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </button>
           </td>
         </tr>`).join('') || '<tr><td colspan="4">Belum ada riwayat.</td></tr>'}</tbody>
     </table>`;
 }
-async function simpanEditRiwayat(btnEl, rowNumber){
-  const tr = btnEl.closest('tr');
-  const input = tr.querySelector('.riwayat-edit-input');
-  const nominal = angkaMentah_(input);
-  if (!nominal){ alert('Nominal tidak boleh kosong.'); return; }
-  btnEl.disabled = true; btnEl.textContent = '...';
-  try {
-    const r = await call('editTransaksiRow', { rowNumber: rowNumber, nominal: nominal });
-    if (r.ok){ cekRiwayatAdmin(); } else { alert(r.pesan); btnEl.disabled = false; btnEl.textContent = 'Simpan'; }
-  } catch(err){ alert('Gagal: ' + err.message); btnEl.disabled = false; btnEl.textContent = 'Simpan'; }
+
+let editRiwayatRowNumber = null;
+function openEditRiwayat(rowNumber, nominalSaatIni, tanggalISO){
+  editRiwayatRowNumber = rowNumber;
+  const input = document.getElementById('editRiwayatInput');
+  input.value = Number(nominalSaatIni).toLocaleString('id-ID');
+  document.getElementById('editRiwayatTanggal').value = tanggalISO;
+  document.getElementById('editRiwayatResult').innerHTML = '';
+  document.getElementById('editRiwayatOverlay').classList.remove('hidden');
 }
-async function hapusRiwayat(btnEl, rowNumber){
-  if (!confirm('Hapus transaksi ini? Tindakan ini tidak bisa dibatalkan.')) return;
-  btnEl.disabled = true; btnEl.textContent = '...';
+function closeEditRiwayat(){ document.getElementById('editRiwayatOverlay').classList.add('hidden'); }
+async function simpanEditRiwayatModal(){
+  const input = document.getElementById('editRiwayatInput');
+  const tanggal = document.getElementById('editRiwayatTanggal').value;
+  const nominal = angkaMentah_(input);
+  const rowNumber = editRiwayatRowNumber;
+  const btn = document.getElementById('btnSimpanEditRiwayat');
+  if (nominal === ''){ document.getElementById('editRiwayatResult').innerHTML = '<div class="result-msg err">Isi nominal dulu (isi 0 untuk menghapus transaksi ini).</div>'; return; }
+  const nominalNum = Number(nominal);
+
+  // Simpan data lama (sebelum diubah) untuk keperluan undo
+  const entriLama = riwayatAdminData.find(x => x.rowNumber === rowNumber);
+
+  const asalTombol = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;margin:0;border-color:rgba(255,255,255,.4);border-top-color:#fff"></span>';
   try {
-    const r = await call('hapusTransaksiRow', { rowNumber: rowNumber });
-    if (r.ok){ cekRiwayatAdmin(); } else { alert(r.pesan); btnEl.disabled = false; btnEl.textContent = 'Hapus'; }
-  } catch(err){ alert('Gagal: ' + err.message); btnEl.disabled = false; btnEl.textContent = 'Hapus'; }
+    let r;
+    if (nominalNum === 0){
+      r = await call('hapusTransaksiRow', { rowNumber: rowNumber });
+      if (r.ok){
+        closeEditRiwayat(); cekRiwayatAdmin();
+        if (entriLama){
+          showUndoToast('Transaksi tanggal ' + entriLama.tanggal + ' dihapus.', async () => {
+            await call('restoreTransaksi', {
+              absen: riwayatAdminAbsen, nama: riwayatAdminNama,
+              tanggal: entriLama.tanggalISO, nominal: entriLama.nominal
+            });
+            cekRiwayatAdmin();
+          });
+        }
+      } else {
+        document.getElementById('editRiwayatResult').innerHTML = '<div class="result-msg err">' + r.pesan + '</div>';
+      }
+    } else {
+      r = await call('editTransaksiRow', { rowNumber: rowNumber, nominal: nominal, tanggal: tanggal });
+      if (r.ok){
+        closeEditRiwayat(); cekRiwayatAdmin();
+        if (entriLama){
+          showUndoToast('Transaksi diperbarui.', async () => {
+            await call('editTransaksiRow', {
+              rowNumber: rowNumber, nominal: entriLama.nominal, tanggal: entriLama.tanggalISO
+            });
+            cekRiwayatAdmin();
+          });
+        }
+      } else {
+        document.getElementById('editRiwayatResult').innerHTML = '<div class="result-msg err">' + r.pesan + '</div>';
+      }
+    }
+  } catch(err){
+    document.getElementById('editRiwayatResult').innerHTML = '<div class="result-msg err">Gagal: ' + err.message + '</div>';
+  }
+  btn.disabled = false;
+  btn.innerHTML = asalTombol;
 }
 
 /* ---- E. Ranking ---- */
