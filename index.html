@@ -222,7 +222,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
     </div>
     <div class="card">
       <div id="warnTunggakan"></div>
-      <button class="btn outline small" onclick="muatDaftarSiswa()" style="width:auto;margin-bottom:10px">Segarkan</button>
+      <button class="btn outline small" id="btnSegarkanInput" onclick="muatDaftarSiswa()" style="width:auto;margin-bottom:10px">Segarkan</button>
       <div id="daftarSiswaArea"><div class="loading-text">Memuat...</div></div>
     </div>
     <button id="btnSimpanSemua" class="fab" onclick="simpanSemua()" title="Simpan Semua">
@@ -243,7 +243,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
         <button class="btn outline small" data-rekapmode="rentang" onclick="gantiRekapMode('rentang')">Rentang Tanggal</button>
       </div>
       <div id="rekapHarianBox">
-        <button class="btn small outline" onclick="rekapHarian()">Segarkan</button>
+        <button class="btn small outline" id="btnSegarkanRekapHarian" onclick="rekapHarian()">Segarkan</button>
         <div id="areaRekapHarian"></div>
       </div>
       <div id="rekapRentangBox" class="hidden">
@@ -278,7 +278,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
         <div id="areaSaldoSiswa"></div>
       </div>
       <div id="saldoKelasBox" class="hidden">
-        <button class="btn small outline" onclick="saldoKelas()">Segarkan</button>
+        <button class="btn small outline" id="btnSegarkanSaldoKelas" onclick="saldoKelas()">Segarkan</button>
         <div id="areaSaldoKelas"></div>
       </div>
     </div>
@@ -312,7 +312,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
     <div class="card">
       <div class="between" style="margin-bottom:6px">
         <div></div>
-        <button class="btn small outline" onclick="ranking()">Segarkan</button>
+        <button class="btn small outline" id="btnSegarkanRanking" onclick="ranking()">Segarkan</button>
       </div>
       <div id="areaRanking"></div>
     </div>
@@ -323,7 +323,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 <div id="toastContainer"></div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwfideU8IKAYMtBeh-0Q2ARl8KnmOGMYWjZcECpz-sQR2rRESIh7tEuiWJ1jjOIT0Sp/exec";
+const API_URL = "GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT";
 
 async function call(action, extra){
   const body = Object.assign({ action: action }, extra || {});
@@ -485,13 +485,29 @@ function goHome(){
   document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
   document.getElementById('page-home').classList.remove('hidden');
 }
+let rankingLoaded = false;
+let rekapHarianLoaded = false;
+let saldoKelasLoaded = false;
+
 function goToPage(page){
   document.getElementById('page-home').classList.add('hidden');
   document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
   document.getElementById('page-' + page).classList.remove('hidden');
-  if (page === 'ranking') ranking();
-  if (page === 'rekap') rekapHarian();
+  if (page === 'ranking' && !rankingLoaded) ranking();
+  if (page === 'rekap' && !rekapHarianLoaded) rekapHarian();
   if (page === 'input') muatDaftarSiswa();
+}
+
+// Spinner kecil di tombol saja (tidak menghapus data lama yang sedang tampil)
+function setTombolLoading(btnEl, isLoading){
+  if (isLoading){
+    btnEl.dataset.asal = btnEl.innerHTML;
+    btnEl.disabled = true;
+    btnEl.innerHTML = '<span class="spinner" style="width:14px;height:14px;margin:0;border-color:rgba(0,0,0,.15);border-top-color:var(--ink)"></span>';
+  } else {
+    btnEl.disabled = false;
+    btnEl.innerHTML = btnEl.dataset.asal;
+  }
 }
 
 /* ---- A. Input & Edit ---- */
@@ -520,13 +536,22 @@ function salinKalimat_(text, btnEl){
   });
 }
 
+let daftarSiswaLoadedOnce = false;
 async function muatDaftarSiswa(){
   const area = document.getElementById('daftarSiswaArea');
   const warn = document.getElementById('warnTunggakan');
-  area.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat daftar siswa...</div>';
-  warn.innerHTML = '';
+  const btn = document.getElementById('btnSegarkanInput');
+  if (daftarSiswaLoadedOnce){
+    setTombolLoading(btn, true);
+  } else {
+    area.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat daftar siswa...</div>';
+    warn.innerHTML = '';
+  }
   try {
     const r = await call('listSiswaHariIni');
+    if (daftarSiswaLoadedOnce) setTombolLoading(btn, false);
+    daftarSiswaLoadedOnce = true;
+    warn.innerHTML = '';
     if (!r.ok){ area.innerHTML = '<div class="result-msg err">' + r.pesan + '</div>'; return; }
 
     if (r.diblokir){
@@ -561,6 +586,7 @@ async function muatDaftarSiswa(){
         </div>`;
     }).join('');
   } catch(err){
+    if (btn.disabled) setTombolLoading(btn, false);
     area.innerHTML = '<div class="result-msg err">Gagal memuat: ' + err.message + '</div>';
   }
 }
@@ -605,9 +631,21 @@ function gantiRekapMode(mode){
   document.getElementById('rekapRentangBox').classList.toggle('hidden', mode !== 'rentang');
 }
 async function rekapHarian(){
-  showLoading('areaRekapHarian');
-  const r = await call('rekap');
+  const btn = document.getElementById('btnSegarkanRekapHarian');
+  if (rekapHarianLoaded) setTombolLoading(btn, true);
+  else showLoading('areaRekapHarian');
+
+  let r;
+  try {
+    r = await call('rekap');
+  } catch(err){
+    if (btn.disabled) setTombolLoading(btn, false);
+    showError('areaRekapHarian', 'Gagal terhubung ke server: ' + err.message);
+    return;
+  }
+  if (rekapHarianLoaded) setTombolLoading(btn, false);
   if (!r.ok){ showError('areaRekapHarian', r.pesan); return; }
+  rekapHarianLoaded = true;
   lastRekapHarian = r.transaksi.map(x => ({ Absen: x.absen, Nama: x.nama, Nominal: x.nominal }));
   const area = document.getElementById('areaRekapHarian');
   area.innerHTML = `
@@ -681,7 +719,7 @@ function gantiSaldoMode(mode){
   document.querySelectorAll('[data-saldomode]').forEach(b => b.classList.toggle('active', b.dataset.saldomode === mode));
   document.getElementById('saldoSiswaBox').classList.toggle('hidden', mode !== 'siswa');
   document.getElementById('saldoKelasBox').classList.toggle('hidden', mode !== 'kelas');
-  if (mode === 'kelas') saldoKelas();
+  if (mode === 'kelas' && !saldoKelasLoaded) saldoKelas();
 }
 let selectedAbsenSaldo = '';
 async function saldoSiswa(){
@@ -698,9 +736,21 @@ async function saldoSiswa(){
     </div>`;
 }
 async function saldoKelas(){
-  showLoading('areaSaldoKelas');
-  const r = await call('total');
+  const btn = document.getElementById('btnSegarkanSaldoKelas');
+  if (saldoKelasLoaded) setTombolLoading(btn, true);
+  else showLoading('areaSaldoKelas');
+
+  let r;
+  try {
+    r = await call('total');
+  } catch(err){
+    if (btn.disabled) setTombolLoading(btn, false);
+    showError('areaSaldoKelas', 'Gagal terhubung ke server: ' + err.message);
+    return;
+  }
+  if (saldoKelasLoaded) setTombolLoading(btn, false);
   if (!r.ok){ showError('areaSaldoKelas', r.pesan); return; }
+  saldoKelasLoaded = true;
   lastSaldoKelas = r.list.map(x => ({ Absen: x.absen, Nama: x.nama, Saldo: x.saldo }));
   const tglHariIni = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
   document.getElementById('areaSaldoKelas').innerHTML = `
@@ -874,9 +924,21 @@ async function simpanEditRiwayatModal(){
 
 /* ---- E. Ranking ---- */
 async function ranking(){
-  showLoading('areaRanking');
-  const r = await call('ranking');
+  const btn = document.getElementById('btnSegarkanRanking');
+  if (rankingLoaded) setTombolLoading(btn, true);
+  else showLoading('areaRanking');
+
+  let r;
+  try {
+    r = await call('ranking');
+  } catch(err){
+    if (btn.disabled) setTombolLoading(btn, false);
+    showError('areaRanking', 'Gagal terhubung ke server: ' + err.message);
+    return;
+  }
+  if (rankingLoaded) setTombolLoading(btn, false);
   if (!r.ok){ showError('areaRanking', r.pesan); return; }
+  rankingLoaded = true;
   document.getElementById('areaRanking').innerHTML = `
     <table>
       <thead><tr><th>Peringkat</th><th>Nama</th><th style="text-align:right">Total</th></tr></thead>
