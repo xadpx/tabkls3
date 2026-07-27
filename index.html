@@ -165,7 +165,7 @@
 
 <script>
 // ==== GANTI dengan URL Web App Apps Script kamu ====
-const API_URL = "https://script.google.com/macros/s/AKfycbwfideU8IKAYMtBeh-0Q2ARl8KnmOGMYWjZcECpz-sQR2rRESIh7tEuiWJ1jjOIT0Sp/exec";
+const API_URL = "GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT";
 
 function getPassword(){ return sessionStorage.getItem('adminPass') || ''; }
 
@@ -185,18 +185,22 @@ function showResult(elId, ok, text){
 async function cekOrtu(){
   const kode = document.getElementById('kodeOrtu').value.trim();
   if (!kode){ showResult('resultOrtu', false, 'Masukkan kode akses dulu.'); return; }
-  const r = await call('ortuInfo', { kode: kode });
-  if (!r.ok){ showResult('resultOrtu', false, r.pesan); return; }
-  document.getElementById('resultOrtu').outerHTML = `
-    <div id="resultOrtu">
-      <div class="ortu-nama">${r.nama}</div>
-      <div class="saldo-label">Saldo saat ini</div>
-      <div class="saldo">Rp ${r.saldoTotal.toLocaleString('id-ID')}</div>
-      <div class="info-box">
-        <div>📅 Setoran terakhir: <b>${r.tanggalTerakhir || '-'}</b></div>
-        <div>💰 Nominal terakhir: <b>Rp ${r.nominalTerakhir.toLocaleString('id-ID')}</b></div>
-      </div>
-    </div>`;
+  try {
+    const r = await call('ortuInfo', { kode: kode });
+    if (!r.ok){ showResult('resultOrtu', false, r.pesan); return; }
+    document.getElementById('resultOrtu').outerHTML = `
+      <div id="resultOrtu">
+        <div class="ortu-nama">${r.nama}</div>
+        <div class="saldo-label">Saldo saat ini</div>
+        <div class="saldo">Rp ${r.saldoTotal.toLocaleString('id-ID')}</div>
+        <div class="info-box">
+          <div>📅 Setoran terakhir: <b>${r.tanggalTerakhir || '-'}</b></div>
+          <div>💰 Nominal terakhir: <b>Rp ${r.nominalTerakhir.toLocaleString('id-ID')}</b></div>
+        </div>
+      </div>`;
+  } catch(err){
+    showResult('resultOrtu', false, 'Gagal terhubung ke server. Cek apakah API_URL sudah benar, dan koneksi internet aktif.\n\nDetail: ' + err.message);
+  }
 }
 
 /* ---- Login admin ---- */
