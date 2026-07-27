@@ -167,42 +167,9 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 </head>
 <body>
 
-<div id="topbar" class="topbar">
-  <div class="brand">
-    <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V6a2 2 0 0 1 2-2h9l5 5v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 4v5h5"/><path d="M8 13h8M8 17h5"/></svg></div>
-    <div class="brand-text">Buku Tabungan Kelas</div>
-  </div>
-  <button class="btn-ghost" onclick="openLogin()">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-    Login Admin
-  </button>
-</div>
-
-<div id="ortuView" class="wrap">
-  <div class="ortu-card">
-    <h1 style="font-size:1.1rem;color:var(--ink-soft);font-weight:500;margin-top:0">Cek Tabungan Ananda</h1>
-    <input type="text" id="kodeOrtu" placeholder="Masukkan kode akses">
-    <button class="btn" style="width:100%" onclick="cekOrtu()">Cek Saldo</button>
-  </div>
-  <div id="saldoCard" class="ortu-card hidden">
-    <div id="resultOrtu"></div>
-  </div>
-</div>
-
-<div id="loginOverlay" class="overlay hidden">
-  <div class="modal">
-    <h2 style="margin-top:0">Login Admin</h2>
-    <input type="password" id="passwordInput" placeholder="Password">
-    <div class="row">
-      <button class="btn" style="width:100%" id="btnLoginAdmin" onclick="login()">Masuk</button>
-      <button class="btn outline" style="width:100%" onclick="closeLogin()">Batal</button>
-    </div>
-    <div id="loginResult"></div>
-  </div>
-</div>
-
 <div id="editRiwayatOverlay" class="overlay hidden">
   <div class="modal">
+
     <h2 style="margin-top:0">Edit Transaksi</h2>
     <input type="date" id="editRiwayatTanggal">
     <input type="text" inputmode="numeric" id="editRiwayatInput" oninput="formatRibuan_(this)">
@@ -214,7 +181,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
   </div>
 </div>
 
-<div id="dashboard" class="wrap hidden">
+<div id="dashboard" class="wrap">
 
   <!-- ===== BERANDA (hanya shortcut) ===== -->
   <div id="page-home">
@@ -241,9 +208,6 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
         <div class="bento-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0Z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg></div>
         <div><div class="bento-title">Ranking</div><div class="bento-sub">Peringkat tabungan</div></div>
       </button>
-    </div>
-    <div class="card">
-      <button class="btn outline" style="width:100%" onclick="logout()">Keluar dari Admin</button>
     </div>
   </div>
 
@@ -361,9 +325,8 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 <script>
 const API_URL = "GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT";
 
-function getPassword(){ return sessionStorage.getItem('adminPass') || ''; }
 async function call(action, extra){
-  const body = Object.assign({ action: action, password: getPassword() }, extra || {});
+  const body = Object.assign({ action: action }, extra || {});
   const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body) });
   return res.json();
 }
@@ -388,7 +351,7 @@ function showUndoToast(pesan, onUndo){
 const NAMA_SEKOLAH_REKAP = 'SDN 6 TEJAKULA';
 const BORDER_TIPIS_ = { style: 'thin' };
 const BORDER_KOTAK_ = { top: BORDER_TIPIS_, bottom: BORDER_TIPIS_, left: BORDER_TIPIS_, right: BORDER_TIPIS_ };
-const FORMAT_ANGKA_ = '_-* #,##0_-;-* #,##0_-;_-* "-"??_-;_-@_-';
+const FORMAT_ANGKA_ = '[$-421]#,##0;-[$-421]#,##0';
 
 async function unduhRekapExcel_(cfg){
   // cfg = { headerLabels, dataKeys, rows, total, topLabel, topValue, topIsDate,
@@ -422,7 +385,7 @@ async function unduhRekapExcel_(cfg){
   cNilaiAtas.value = cfg.topValue;
   cNilaiAtas.font = { bold:true };
   cNilaiAtas.alignment = { horizontal:'left' };
-  if (cfg.topIsDate) cNilaiAtas.numFmt = 'mm-dd-yy';
+  if (cfg.topIsDate) cNilaiAtas.numFmt = 'dd-mm-yyyy';
 
   const headerRow = 5;
   cfg.headerLabels.forEach((h,i)=>{
@@ -462,7 +425,7 @@ async function unduhRekapExcel_(cfg){
   ws.getCell(r, kolLabelKanan).alignment = { horizontal:'right' };
   ws.getCell(r, colCount).value = cfg.bottomValue;
   ws.getCell(r, colCount).font = { bold:true };
-  if (cfg.bottomIsDate) ws.getCell(r, colCount).numFmt = 'mm-dd-yy';
+  if (cfg.bottomIsDate) ws.getCell(r, colCount).numFmt = 'dd-mm-yyyy';
   r++;
 
   for (let cc=1; cc<=colCount; cc++) ws.getCell(r,cc).border = BORDER_KOTAK_;
@@ -515,86 +478,7 @@ async function downloadSaldoExcel(rows, headers, total, tanggalLabel, filename){
   URL.revokeObjectURL(url);
 }
 
-/* ---- Tampilan ortu ---- */
-let riwayatData = [];
-let riwayatPage = 1;
-const PER_HALAMAN = 10;
-
-async function cekOrtu(){
-  const kode = document.getElementById('kodeOrtu').value.trim();
-  const resultEl = document.getElementById('resultOrtu');
-  const saldoCard = document.getElementById('saldoCard');
-  if (!kode){ saldoCard.classList.remove('hidden'); showError('resultOrtu', 'Masukkan kode akses dulu.'); return; }
-  saldoCard.classList.remove('hidden');
-  resultEl.innerHTML = '<div class="spinner"></div><div class="loading-text">Memuat data...</div>';
-  try {
-    const r = await call('ortuInfo', { kode: kode });
-    if (!r.ok){ showError('resultOrtu', r.pesan); return; }
-    riwayatData = r.riwayat || []; riwayatPage = 1;
-    resultEl.innerHTML = `
-      <div style="text-align:center">
-        <div class="ortu-nama">Absen ${r.absen}</div>
-        <div class="saldo-label">Saldo saat ini</div>
-        <div class="saldo mono">${rupiah(r.saldoTotal)}</div>
-        <div class="info-box">
-          <div>Setoran terakhir: <b>${r.tanggalTerakhir || '-'}</b></div>
-          <div>Nominal terakhir: <b class="mono">${rupiah(r.nominalTerakhir)}</b></div>
-        </div>
-      </div>
-      <h2 style="font-size:1rem;margin:18px 0 4px;color:var(--ink);text-align:left">Riwayat Tabungan</h2>
-      <div id="riwayatArea"></div>`;
-    renderRiwayat();
-  } catch(err){ showError('resultOrtu', 'Gagal terhubung ke server.\n\nDetail: ' + err.message); }
-}
-function renderRiwayat(){
-  const area = document.getElementById('riwayatArea');
-  if (!area) return;
-  if (!riwayatData.length){ area.innerHTML = '<div class="loading-text">Belum ada riwayat tabungan.</div>'; return; }
-  const totalPage = Math.ceil(riwayatData.length / PER_HALAMAN);
-  if (riwayatPage > totalPage) riwayatPage = totalPage;
-  if (riwayatPage < 1) riwayatPage = 1;
-  const start = (riwayatPage - 1) * PER_HALAMAN;
-  const rows = riwayatData.slice(start, start + PER_HALAMAN);
-  area.innerHTML = `
-    <table><thead><tr><th>Tanggal</th><th style="text-align:right">Nominal</th></tr></thead>
-    <tbody>${rows.map(x => `<tr><td>${x.tanggal}</td><td class="mono" style="text-align:right">${rupiah(x.nominal)}</td></tr>`).join('')}</tbody></table>
-    <div class="pagination">
-      <button class="btn small outline" onclick="gantiHalamanRiwayat(-1)" ${riwayatPage <= 1 ? 'disabled' : ''}>&lsaquo; Sebelumnya</button>
-      <span>Halaman ${riwayatPage} dari ${totalPage}</span>
-      <button class="btn small outline" onclick="gantiHalamanRiwayat(1)" ${riwayatPage >= totalPage ? 'disabled' : ''}>Berikutnya &rsaquo;</button>
-    </div>`;
-}
-function gantiHalamanRiwayat(arah){ riwayatPage += arah; renderRiwayat(); }
-
-/* ---- Login ---- */
-function openLogin(){ document.getElementById('loginOverlay').classList.remove('hidden'); }
-function closeLogin(){ document.getElementById('loginOverlay').classList.add('hidden'); }
-async function login(){
-  sessionStorage.setItem('adminPass', document.getElementById('passwordInput').value);
-  const btn = document.getElementById('btnLoginAdmin');
-  const asalTombol = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;margin:0;border-color:rgba(255,255,255,.4);border-top-color:#fff"></span>';
-  let r;
-  try {
-    r = await call('login');
-  } catch(err){
-    btn.disabled = false; btn.innerHTML = asalTombol;
-    document.getElementById('loginResult').innerHTML = '<div class="result-msg err">Gagal terhubung ke server: ' + err.message + '</div>';
-    return;
-  }
-  btn.disabled = false; btn.innerHTML = asalTombol;
-  if (r.ok){
-    closeLogin();
-    document.getElementById('ortuView').classList.add('hidden');
-    document.getElementById('topbar').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
-    goHome();
-  } else {
-    document.getElementById('loginResult').innerHTML = '<div class="result-msg err">' + (r.pesan || 'Password salah.') + '</div>';
-  }
-}
-function logout(){ sessionStorage.removeItem('adminPass'); location.reload(); }
+/* ---- Riwayat (Riwayat page state untuk undo, dsb.) ---- */
 
 /* ---- Navigasi halaman (beranda = shortcut saja) ---- */
 function goHome(){
@@ -1021,7 +905,7 @@ attachLiveSearch(
   () => { selectedAbsenRiwayat = ''; }
 );
 
-if (getPassword()){ login(); }
+goHome();
 </script>
 </body>
 </html>
