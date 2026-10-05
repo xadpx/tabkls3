@@ -179,6 +179,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 .av{ width:34px; height:34px; font-size:.8rem }
 .av-sm{ width:26px; height:26px; font-size:.7rem; background:var(--orange-soft); color:#B5551F }
 .siswa-row.lk .av{ background:var(--gray-soft); color:var(--gray) }
+.no-urut{ width:22px; text-align:center; color:var(--ink-soft); font-size:.8rem; font-weight:600; flex-shrink:0; margin-right:-2px }
 .siswa-input.terisi{ border-color:var(--blue); background:#fff }
 .ck{ width:18px; height:18px; stroke:var(--blue); fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0 }
 .nm-av{ display:inline-flex; align-items:center; gap:8px }
@@ -738,8 +739,8 @@ async function muatDaftarSiswa(){
       return;
     }
 
-    area.innerHTML = r.list.map(s => {
-      const av = '<div class="av">' + inisial_(s.nama) + '</div>';
+    area.innerHTML = r.list.map((s, idx) => {
+      const av = '<div class="no-urut">' + (idx + 1) + '</div><div class="av">' + inisial_(s.nama) + '</div>';
       if (s.nominalHariIni > 0){
         return `<div class="siswa-row lk">${av}<div class="siswa-info"><div class="siswa-nama">${s.nama}</div></div><input type="text" class="siswa-input mono" value="${s.nominalHariIni.toLocaleString('id-ID')}" disabled><svg class="ck" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>`;
       }
