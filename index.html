@@ -6,7 +6,7 @@
 <title>Buku Tabungan Kelas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <style>
 :root{
@@ -27,32 +27,32 @@
 }
 *{box-sizing:border-box}
 html{ overflow-x:hidden; width:100%; }
-body{ margin:0; font-family:'Figtree',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; overflow-x:hidden; width:100%; }
+body{ font-variant-numeric:tabular-nums; margin:0; font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; overflow-x:hidden; width:100%; }
 .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-h1,h2,h3{font-family:'Fredoka',sans-serif}
-.mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:'Inter',system-ui,sans-serif}
+.mono{font-family:'Inter',system-ui,sans-serif; font-variant-numeric:tabular-nums}
 .hidden{display:none !important}
 
 .topbar{ display:flex; justify-content:space-between; align-items:center; padding:18px 22px; max-width:960px; margin:0 auto; }
 .brand{display:flex; align-items:center; gap:10px}
 .brand-mark{ width:36px; height:36px; border-radius:10px; background:var(--blue); display:flex; align-items:center; justify-content:center; }
 .brand-mark svg{width:20px; height:20px; stroke:#fff}
-.brand-text{font-family:'Fredoka'; font-weight:600; font-size:1.05rem}
-.btn-ghost{ background:transparent; border:1.5px solid var(--line); color:var(--ink-soft); padding:8px 16px; border-radius:100px; font-size:.82rem; font-weight:600; cursor:pointer; font-family:'Figtree'; display:flex; align-items:center; gap:6px; }
+.brand-text{font-family:'Inter'; font-weight:600; font-size:1.05rem}
+.btn-ghost{ background:transparent; border:1.5px solid var(--line); color:var(--ink-soft); padding:8px 16px; border-radius:100px; font-size:.82rem; font-weight:600; cursor:pointer; font-family:'Inter'; display:flex; align-items:center; gap:6px; }
 .btn-ghost:hover{border-color:var(--blue); color:var(--blue)}
 .btn-ghost svg{width:15px; height:15px}
 
-.wrap{max-width:960px; margin:0 auto; padding:0 20px 50px}
+.wrap{max-width:960px; margin:0 auto; padding:18px 20px 100px}
 
 .card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:20px; }
 .card + .card{margin-top:16px}
 .card h2{font-size:1.1rem; margin:0 0 4px; font-weight:600}
 .card .desc{color:var(--ink-soft); font-size:.85rem; margin-bottom:16px}
 
-input, textarea, select{ width:100%; padding:11px 14px; border-radius:var(--radius-sm); border:1.5px solid var(--line); background:var(--surface-2); color:var(--ink); font-size:.95rem; margin-bottom:10px; font-family:'Figtree'; outline:none; }
+input, textarea, select{ width:100%; padding:11px 14px; border-radius:var(--radius-sm); border:1.5px solid var(--line); background:var(--surface-2); color:var(--ink); font-size:.95rem; margin-bottom:10px; font-family:'Inter'; outline:none; }
 input:focus, select:focus{border-color:var(--blue)}
-button{font-family:'Figtree'}
-.btn{ background:var(--blue); color:#fff; border:none; padding:11px 18px; border-radius:var(--radius-sm); font-size:.92rem; font-weight:700; cursor:pointer; }
+button{font-family:'Inter'}
+.btn{ background:var(--blue); color:#fff; border:none; padding:11px 18px; border-radius:100px; font-size:.92rem; font-weight:700; cursor:pointer; }
 .btn:hover{filter:brightness(0.92)}
 .btn.orange{background:var(--orange)}
 .btn.purple{background:var(--purple)}
@@ -60,7 +60,7 @@ button{font-family:'Figtree'}
 .btn.gray{background:var(--gray)}
 .btn.outline{background:transparent; border:1.5px solid var(--line); color:var(--ink)}
 .btn.outline.active{border-color:var(--blue); color:var(--blue); background:var(--blue-soft)}
-.btn.small{padding:7px 12px; font-size:.8rem; border-radius:8px}
+.btn.small{padding:7px 14px; font-size:.8rem; border-radius:100px}
 .btn:disabled{opacity:.45; cursor:not-allowed}
 
 .result-msg{ margin-top:10px; padding:12px 14px; border-radius:var(--radius-sm); font-size:.88rem; line-height:1.5; }
@@ -83,9 +83,9 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 .between{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
 
 .ortu-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:30px 26px; max-width:420px; margin:8vh auto 0; text-align:center; }
-.ortu-nama{font-family:'Fredoka'; font-size:1.3rem; font-weight:600; margin-bottom:18px; color:var(--blue)}
+.ortu-nama{font-family:'Inter'; font-size:1.3rem; font-weight:600; margin-bottom:18px; color:var(--blue)}
 .saldo-label{color:var(--ink-soft); font-size:.85rem}
-.saldo{font-family:'IBM Plex Mono'; font-size:2.1rem; font-weight:600; color:var(--purple); margin:4px 0 18px}
+.saldo{font-family:'Inter'; font-size:2.1rem; font-weight:600; color:var(--purple); margin:4px 0 18px}
 .info-box{ background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-sm); padding:14px; text-align:left; font-size:.9rem; }
 .info-box div{margin-bottom:6px}
 
@@ -93,13 +93,13 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 .modal{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:24px; max-width:320px; width:100%; }
 
 /* Bento beranda */
-.bento-nav{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
+.bento-nav{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px; }
 .bento-item{ border:1.5px solid var(--line); border-radius:var(--radius-md); padding:18px; cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:12px; background:var(--surface); transition:transform .12s; }
 .bento-item:hover{transform:translateY(-2px)}
 .bento-item.input-edit{grid-column:span 2}
 .bento-icon{ width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; }
 .bento-icon svg{width:19px; height:19px; stroke:#fff}
-.bento-title{font-family:'Fredoka'; font-weight:600; font-size:.98rem}
+.bento-title{font-family:'Inter'; font-weight:600; font-size:.98rem}
 .bento-sub{font-size:.78rem; color:var(--ink-soft)}
 .bento-item.c-blue .bento-icon{background:var(--blue)}
 .bento-item.c-orange .bento-icon{background:var(--orange)}
@@ -123,24 +123,16 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 .siswa-info{flex:1; min-width:0}
 .siswa-nama{font-weight:600; font-size:.92rem}
 .siswa-meta{font-size:.78rem; color:var(--ink-soft)}
-.siswa-input{width:130px; margin-bottom:0; text-align:right; font-family:'IBM Plex Mono'}
+.siswa-input{width:130px; margin-bottom:0; text-align:right; font-family:'Inter'}
 .siswa-status{width:26px; text-align:center; font-size:.85rem; font-weight:700}
 
 .subnav{display:flex; gap:8px; margin-bottom:14px}
 .banner-warn{ background:var(--orange-soft); border:1px solid var(--orange); color:#8a4318; padding:10px 14px; border-radius:var(--radius-sm); font-size:.85rem; margin-bottom:14px; }
 .summary-line{margin-top:10px; font-size:.9rem; color:var(--ink-soft)}
 .summary-line b{color:var(--ink)}
-.fab{
-  position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%;
-  background:var(--blue); color:#fff; border:none; box-shadow:0 6px 18px rgba(59,111,214,.4);
-  display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:40;
-}
-.fab svg{width:24px; height:24px; stroke:#fff}
-.fab:hover{filter:brightness(0.92)}
-.fab:disabled{opacity:.5; cursor:not-allowed}
 
 .toast{
-  position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+  position:fixed; left:50%; bottom:84px; transform:translateX(-50%);
   background:var(--ink); color:#fff; padding:12px 14px 12px 18px; border-radius:14px;
   display:flex; align-items:center; gap:14px; font-size:.88rem; box-shadow:0 8px 24px rgba(0,0,0,.25);
   z-index:60; max-width:90vw;
@@ -163,11 +155,53 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 .ac-item.ac-empty:hover{background:transparent}
 .ac-absen{color:var(--ink-soft); font-size:.76rem; white-space:nowrap}
 .filter-box{margin-bottom:4px}
-.tgl-box{ background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius-md); padding:12px 14px; margin-bottom:14px; }
-.tgl-box input[type=date]{ margin:10px 0 0; }
-.tgl-label{ font-family:'Fredoka',sans-serif; font-weight:600; font-size:1rem; }
-.tgl-badge{ display:inline-block; font-family:'Figtree'; font-size:.7rem; font-weight:700; padding:2px 8px; border-radius:100px; margin-left:6px; vertical-align:middle; background:var(--blue-soft); color:var(--blue); }
-.tgl-badge.manual{ background:var(--orange-soft); color:#8a4318; }
+
+/* ===== Gaya A: kartu + chip ===== */
+.back{ width:36px; height:36px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; padding:0 }
+.back:hover{border-color:var(--blue); color:var(--blue)}
+.back svg{width:18px; height:18px}
+.bento-item.input-edit{ flex-direction:row; align-items:center; background:var(--blue); border-color:var(--blue); color:#fff }
+.bento-item.input-edit .bento-icon{ background:rgba(255,255,255,.2) }
+.bento-item.input-edit .bento-sub{ color:rgba(255,255,255,.85) }
+.bento-item.input-edit > div:nth-child(2){ flex:1 }
+.bento-chev{ width:20px; height:20px; stroke:#fff }
+.chip{ position:relative; padding:7px 14px; border-radius:100px; border:1.5px solid var(--line); background:var(--surface); font-size:.85rem; font-weight:600; color:var(--ink-soft); cursor:pointer; font-family:'Inter'; display:inline-flex; align-items:center; gap:6px; white-space:nowrap }
+.chip.on{ background:var(--blue); border-color:var(--blue); color:#fff }
+.chip svg{ width:14px; height:14px }
+.chip input[type=date]{ position:absolute; inset:0; width:100%; height:100%; opacity:0; margin:0; padding:0; cursor:pointer; border:none }
+.tgl-chips{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px }
+.tgl-sub{ font-size:.82rem; color:var(--ink-soft); margin-bottom:14px }
+#page-input .card{ background:transparent; border:none; padding:0 }
+.siswa-row{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:10px 12px; margin-bottom:8px }
+.siswa-row:last-child{ border-bottom:1px solid var(--line) }
+.siswa-row.lk{ opacity:.6 }
+.av, .av-sm{ border-radius:50%; background:var(--blue-soft); color:var(--blue); display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0 }
+.av{ width:34px; height:34px; font-size:.8rem }
+.av-sm{ width:26px; height:26px; font-size:.7rem; background:var(--orange-soft); color:#B5551F }
+.siswa-row.lk .av{ background:var(--gray-soft); color:var(--gray) }
+.siswa-input.terisi{ border-color:var(--blue); background:#fff }
+.ck{ width:18px; height:18px; stroke:var(--blue); fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0 }
+.nm-av{ display:inline-flex; align-items:center; gap:8px }
+.savebar{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); width:min(92vw,420px); background:var(--blue); color:#fff; border:none; border-radius:100px; padding:14px; font-weight:700; font-size:.95rem; box-shadow:0 8px 22px rgba(59,111,214,.38); z-index:40; cursor:pointer; display:flex; align-items:center; justify-content:center }
+.savebar.kosong{ background:var(--gray); box-shadow:0 8px 22px rgba(0,0,0,.18) }
+.savebar:disabled{ opacity:.6; cursor:not-allowed }
+.stat-row{ display:flex; gap:8px; margin-top:12px }
+.stat{ flex:1; background:var(--surface-2); border:1px solid var(--line); border-radius:14px; padding:12px }
+.stat.warn{ background:var(--orange-soft); border-color:var(--orange); color:#8A4318 }
+.stat-l{ font-size:.75rem; opacity:.8 }
+.stat-v{ font-family:'Inter',system-ui,sans-serif; font-weight:600; font-size:1rem }
+.rk{ display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px; margin-bottom:8px }
+.rk1{ border-color:#EF9F27 }
+.rk .no{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0 }
+.rk-n{ flex:1; font-weight:600; min-width:0 }
+.saldo-card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px 12px; text-align:center; margin-top:10px }
+.saldo-card .saldo{ margin:4px 0 0 }
+#page-rekap .subnav .btn.outline, #page-saldo .subnav .btn.outline{ border-radius:100px; padding:7px 14px }
+#page-rekap .subnav .btn.outline.active{ background:var(--orange-soft); border-color:var(--orange); color:#8A4318 }
+#page-saldo .subnav .btn.outline.active{ background:var(--purple-soft); border-color:var(--purple); color:#5B3FB8 }
+.field-label{ font-size:.78rem; color:var(--ink-soft); margin-bottom:4px }
+.field-hint{ font-size:.78rem; color:var(--ink-soft); margin:-2px 0 12px }
+[id^="btnSegarkan"]{ width:auto !important; padding:8px 10px !important; display:inline-flex; align-items:center; justify-content:center }
 </style>
 </head>
 <body>
@@ -176,8 +210,11 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
   <div class="modal">
 
     <h2 style="margin-top:0">Edit Transaksi</h2>
+    <div class="field-label">Tanggal</div>
     <input type="date" id="editRiwayatTanggal">
+    <div class="field-label">Nominal</div>
     <input type="text" inputmode="numeric" id="editRiwayatInput" oninput="formatRibuan_(this)">
+    <div class="field-hint">Isi 0 untuk menghapus transaksi ini.</div>
     <div class="row">
       <button class="btn pink" style="width:100%" id="btnSimpanEditRiwayat" onclick="simpanEditRiwayatModal()">Simpan</button>
       <button class="btn outline" style="width:100%" onclick="closeEditRiwayat()">Batal</button>
@@ -191,11 +228,12 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
   <!-- ===== BERANDA (hanya shortcut) ===== -->
   <div id="page-home">
     <h1 style="margin-bottom:2px">Dashboard Admin</h1>
-    <div class="desc" style="color:var(--ink-soft);margin-bottom:18px">Pilih menu untuk membuka halamannya.</div>
+    <div class="desc" id="homeTanggal" style="color:var(--ink-soft);margin-bottom:18px"></div>
     <div class="bento-nav">
       <button class="bento-item input-edit c-blue" onclick="goToPage('input')">
         <div class="bento-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
         <div><div class="bento-title">Input Tabungan</div><div class="bento-sub">Catat tabungan per siswa</div></div>
+        <svg class="bento-chev" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
       </button>
       <button class="bento-item c-orange" onclick="goToPage('rekap')">
         <div class="bento-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3M9 12h6M9 16h4"/></svg></div>
@@ -219,36 +257,32 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
   <!-- ===== HALAMAN: INPUT & EDIT ===== -->
   <div id="page-input" class="page hidden">
     <div class="page-header">
-      <button class="btn-ghost" onclick="goHome()">&larr; Beranda</button>
-    </div>
-    <div class="page-header">
+      <button class="back" onclick="goHome()" aria-label="Kembali ke beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
       <div class="page-icon" style="background:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
       <h2 class="page-title">Input Tabungan</h2>
     </div>
     <div class="card">
-      <div class="tgl-box">
-        <div class="between">
-          <div>
-            <div class="saldo-label">Tanggal transaksi</div>
-            <div class="tgl-label"><span id="tglInputLabel"></span><span id="tglInputBadge" class="tgl-badge">Hari ini</span></div>
-          </div>
-          <button class="btn outline small" id="btnToggleTgl" onclick="toggleTanggalManual()">Ubah tanggal</button>
-        </div>
-        <input type="date" id="tglInputManual" class="hidden" onchange="gantiTanggalInput_()" onclick="bukaKalender_()">
+      <div class="tgl-chips">
+        <button class="chip on" id="chipToday" onclick="pilihTanggalHariIni_()">Hari ini</button>
+        <button class="chip" id="chipYest" onclick="pilihTanggalKemarin_()">Kemarin</button>
+        <label class="chip" id="chipCustom">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+          <span id="chipCustomLabel">Pilih tanggal</span>
+          <input type="date" id="tglInputManual" onchange="gantiTanggalInput_()" onclick="bukaKalender_()" aria-label="Pilih tanggal transaksi">
+        </label>
       </div>
+      <div class="tgl-sub" id="tglInputSub"></div>
       <div id="warnTunggakan"></div>
-      <button class="btn outline small" id="btnSegarkanInput" onclick="muatDaftarSiswa()" style="width:auto;margin-bottom:10px">Segarkan</button>
+      <button class="btn outline small" id="btnSegarkanInput" onclick="muatDaftarSiswa()" style="width:auto;margin-bottom:10px" title="Segarkan" aria-label="Segarkan"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"/></svg></button>
       <div id="daftarSiswaArea"><div class="loading-text">Memuat...</div></div>
     </div>
-    <button id="btnSimpanSemua" class="fab" onclick="simpanSemua()" title="Simpan Semua">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-    </button>
+    <button id="btnSimpanSemua" class="savebar kosong" onclick="simpanSemua()"><span id="simpanLabel">Simpan</span></button>
   </div>
 
   <!-- ===== HALAMAN: REKAP ===== -->
   <div id="page-rekap" class="page hidden">
-    <div class="page-header"><button class="btn-ghost" onclick="goHome()">&larr; Beranda</button></div>
     <div class="page-header">
+      <button class="back" onclick="goHome()" aria-label="Kembali ke beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
       <div class="page-icon" style="background:var(--orange)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v3h6V3M9 12h6M9 16h4"/></svg></div>
       <h2 class="page-title">Rekap Transaksi</h2>
     </div>
@@ -258,7 +292,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
         <button class="btn outline small" data-rekapmode="rentang" onclick="gantiRekapMode('rentang')">Rentang Tanggal</button>
       </div>
       <div id="rekapHarianBox">
-        <button class="btn small outline" id="btnSegarkanRekapHarian" onclick="rekapHarian()">Segarkan</button>
+        <button class="btn small outline" id="btnSegarkanRekapHarian" onclick="rekapHarian()" title="Segarkan" aria-label="Segarkan"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"/></svg></button>
         <div id="areaRekapHarian"></div>
       </div>
       <div id="rekapRentangBox" class="hidden">
@@ -274,8 +308,8 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 
   <!-- ===== HALAMAN: SALDO ===== -->
   <div id="page-saldo" class="page hidden">
-    <div class="page-header"><button class="btn-ghost" onclick="goHome()">&larr; Beranda</button></div>
     <div class="page-header">
+      <button class="back" onclick="goHome()" aria-label="Kembali ke beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
       <div class="page-icon" style="background:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14" r="1"/></svg></div>
       <h2 class="page-title">Saldo</h2>
     </div>
@@ -293,7 +327,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
         <div id="areaSaldoSiswa"></div>
       </div>
       <div id="saldoKelasBox" class="hidden">
-        <button class="btn small outline" id="btnSegarkanSaldoKelas" onclick="saldoKelas()">Segarkan</button>
+        <button class="btn small outline" id="btnSegarkanSaldoKelas" onclick="saldoKelas()" title="Segarkan" aria-label="Segarkan"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"/></svg></button>
         <div id="areaSaldoKelas"></div>
       </div>
     </div>
@@ -301,8 +335,8 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 
   <!-- ===== HALAMAN: RIWAYAT ===== -->
   <div id="page-riwayat" class="page hidden">
-    <div class="page-header"><button class="btn-ghost" onclick="goHome()">&larr; Beranda</button></div>
     <div class="page-header">
+      <button class="back" onclick="goHome()" aria-label="Kembali ke beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
       <div class="page-icon" style="background:var(--pink)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
       <h2 class="page-title">Riwayat Transaksi</h2>
     </div>
@@ -319,15 +353,15 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 
   <!-- ===== HALAMAN: RANKING ===== -->
   <div id="page-ranking" class="page hidden">
-    <div class="page-header"><button class="btn-ghost" onclick="goHome()">&larr; Beranda</button></div>
     <div class="page-header">
+      <button class="back" onclick="goHome()" aria-label="Kembali ke beranda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
       <div class="page-icon" style="background:var(--gray)"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0Z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg></div>
       <h2 class="page-title">Ranking Tabungan</h2>
     </div>
     <div class="card">
       <div class="between" style="margin-bottom:6px">
         <div></div>
-        <button class="btn small outline" id="btnSegarkanRanking" onclick="ranking()">Segarkan</button>
+        <button class="btn small outline" id="btnSegarkanRanking" onclick="ranking()" title="Segarkan" aria-label="Segarkan"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"/></svg></button>
       </div>
       <div id="areaRanking"></div>
     </div>
@@ -497,6 +531,7 @@ async function downloadSaldoExcel(rows, headers, total, tanggalLabel, filename){
 
 /* ---- Navigasi halaman (beranda = shortcut saja) ---- */
 function goHome(){
+  const ht = document.getElementById('homeTanggal'); if (ht) ht.textContent = labelTanggal_(hariIniISO_());
   document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
   document.getElementById('page-home').classList.remove('hidden');
 }
@@ -551,16 +586,23 @@ function salinKalimat_(text, btnEl){
   });
 }
 
-/* ---- Tanggal input: default hari ini, bisa diubah manual ---- */
+/* ---- Tanggal input: chip Hari ini / Kemarin / Pilih tanggal ---- */
 let tanggalManual = false;
-function hariIniISO_(){
-  const d = new Date();
+function isoDari_(d){
   const p = n => String(n).padStart(2, '0');
   return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate());
 }
+function hariIniISO_(){ return isoDari_(new Date()); }
+function kemarinISO_(){ const d = new Date(); d.setDate(d.getDate()-1); return isoDari_(d); }
+function tglDariISO_(iso){ const [y,m,d] = iso.split('-').map(Number); return new Date(y, m-1, d); }
 function labelTanggal_(iso){
-  const [y,m,d] = iso.split('-').map(Number);
-  return new Date(y, m-1, d).toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  return tglDariISO_(iso).toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+function labelSingkat_(iso){
+  return tglDariISO_(iso).toLocaleDateString('id-ID', { day:'numeric', month:'short' });
+}
+function inisial_(nama){
+  return String(nama || '').trim().split(/\s+/).slice(0,2).map(w => w[0]).join('').toUpperCase();
 }
 // Kosong = pakai hari ini (server yang menentukan); berisi = tanggal manual (yyyy-mm-dd)
 function getTanggalInput_(){
@@ -569,29 +611,31 @@ function getTanggalInput_(){
 }
 function renderTanggalInput_(){
   const inp = document.getElementById('tglInputManual');
-  const badge = document.getElementById('tglInputBadge');
-  const btn = document.getElementById('btnToggleTgl');
-  const iso = tanggalManual ? (inp.value || hariIniISO_()) : hariIniISO_();
-  document.getElementById('tglInputLabel').textContent = labelTanggal_(iso);
-  inp.classList.toggle('hidden', !tanggalManual);
-  badge.textContent = tanggalManual ? 'Manual' : 'Hari ini';
-  badge.classList.toggle('manual', tanggalManual);
-  btn.textContent = tanggalManual ? 'Pakai hari ini' : 'Ubah tanggal';
+  inp.max = hariIniISO_();
+  if (!tanggalManual) inp.value = hariIniISO_();
+  const iso = inp.value || hariIniISO_();
+  const mode = !tanggalManual ? 'today' : (iso === kemarinISO_() ? 'yesterday' : 'custom');
+  document.getElementById('chipToday').classList.toggle('on', mode === 'today');
+  document.getElementById('chipYest').classList.toggle('on', mode === 'yesterday');
+  document.getElementById('chipCustom').classList.toggle('on', mode === 'custom');
+  document.getElementById('chipCustomLabel').textContent = mode === 'custom' ? labelSingkat_(iso) : 'Pilih tanggal';
+  document.getElementById('tglInputSub').textContent = labelTanggal_(iso) + (tanggalManual ? ' \u00b7 mode manual' : '');
 }
 function resetTanggalInput_(){
   tanggalManual = false;
   renderTanggalInput_();
 }
-function toggleTanggalManual(){
-  const inp = document.getElementById('tglInputManual');
-  tanggalManual = !tanggalManual;
-  if (tanggalManual){
-    inp.max = hariIniISO_();
-    inp.value = hariIniISO_();
-  }
+function pilihTanggalHariIni_(){
+  if (!tanggalManual) return;
+  tanggalManual = false;
   renderTanggalInput_();
-  if (tanggalManual) bukaKalender_();
-  else muatDaftarSiswa();
+  muatDaftarSiswa();
+}
+function pilihTanggalKemarin_(){
+  document.getElementById('tglInputManual').value = kemarinISO_();
+  tanggalManual = true;
+  renderTanggalInput_();
+  muatDaftarSiswa();
 }
 function bukaKalender_(){
   const inp = document.getElementById('tglInputManual');
@@ -602,9 +646,23 @@ function bukaKalender_(){
 }
 function gantiTanggalInput_(){
   const inp = document.getElementById('tglInputManual');
-  if (!inp.value){ inp.value = hariIniISO_(); }
+  if (!inp.value) return;
+  tanggalManual = inp.value !== hariIniISO_();
   renderTanggalInput_();
   muatDaftarSiswa();
+}
+// Ringkasan di tombol simpan: jumlah siswa + total nominal yang akan disimpan
+function updateRingkasanSimpan_(){
+  let n = 0, total = 0;
+  document.querySelectorAll('#daftarSiswaArea .siswa-row[data-absen] .siswa-input').forEach(inp => {
+    const v = Number(angkaMentah_(inp)) || 0;
+    inp.classList.toggle('terisi', v > 0);
+    if (v > 0){ n++; total += v; }
+  });
+  const btn = document.getElementById('btnSimpanSemua');
+  const lbl = document.getElementById('simpanLabel');
+  if (lbl) lbl.textContent = n ? 'Simpan ' + n + ' transaksi \u00b7 ' + rupiah(total) : 'Simpan';
+  btn.classList.toggle('kosong', !n);
 }
 
 // Mode tanggal manual: daftar siswa + transaksi pada tanggal tsb (tanpa bergantung pada listSiswaHariIni)
@@ -680,22 +738,14 @@ async function muatDaftarSiswa(){
       return;
     }
 
-    area.innerHTML = r.list.map((s, idx) => {
+    area.innerHTML = r.list.map(s => {
+      const av = '<div class="av">' + inisial_(s.nama) + '</div>';
       if (s.nominalHariIni > 0){
-        return `
-        <div class="siswa-row">
-          <div style="width:28px;color:var(--ink-soft)">${idx + 1}</div>
-          <div class="siswa-info"><div class="siswa-nama">${s.nama}</div></div>
-          <input type="text" class="siswa-input mono" value="${s.nominalHariIni.toLocaleString('id-ID')}" disabled style="color:var(--ink-soft)">
-        </div>`;
+        return `<div class="siswa-row lk">${av}<div class="siswa-info"><div class="siswa-nama">${s.nama}</div></div><input type="text" class="siswa-input mono" value="${s.nominalHariIni.toLocaleString('id-ID')}" disabled><svg class="ck" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>`;
       }
-      return `
-        <div class="siswa-row" data-absen="${s.absen}">
-          <div style="width:28px;color:var(--ink-soft)">${idx + 1}</div>
-          <div class="siswa-info"><div class="siswa-nama">${s.nama}</div></div>
-          <input type="text" inputmode="numeric" class="siswa-input" value="0" onfocus="this.select()" oninput="formatRibuan_(this)">
-        </div>`;
+      return `<div class="siswa-row" data-absen="${s.absen}">${av}<div class="siswa-info"><div class="siswa-nama">${s.nama}</div></div><input type="text" inputmode="numeric" class="siswa-input" value="0" onfocus="this.select()" oninput="formatRibuan_(this);updateRingkasanSimpan_()"></div>`;
     }).join('');
+    updateRingkasanSimpan_();
   } catch(err){
     if (btn.disabled) setTombolLoading(btn, false);
     area.innerHTML = '<div class="result-msg err">Gagal memuat: ' + err.message + '</div>';
@@ -770,11 +820,10 @@ async function rekapHarian(){
     <div class="table-scroll">
     <table>
       <thead><tr><th>Absen</th><th>Nama</th><th style="text-align:right">Nominal</th></tr></thead>
-      <tbody>${r.transaksi.map(x => `<tr><td>${x.absen}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.nominal)}</td></tr>`).join('') || '<tr><td colspan="3">Belum ada transaksi.</td></tr>'}</tbody>
-      <tfoot><tr><td colspan="2">Total</td><td class="mono" style="text-align:right">${rupiah(r.total)}</td></tr></tfoot>
+      <tbody>${r.transaksi.map(x => `<tr><td>${x.absen}</td><td><span class="nm-av"><span class="av-sm">${inisial_(x.nama)}</span>${x.nama}</span></td><td class="mono" style="text-align:right">${rupiah(x.nominal)}</td></tr>`).join('') || '<tr><td colspan="3">Belum ada transaksi.</td></tr>'}</tbody>
     </table>
     </div>
-    <div class="summary-line">Saldo belum disetor ke bendahara: <b>${rupiah(r.saldoBelumSetor)}</b></div>`;
+    <div class="stat-row"><div class="stat"><div class="stat-l">Total hari ini</div><div class="stat-v">${rupiah(r.total)}</div></div><div class="stat warn"><div class="stat-l">Belum disetor</div><div class="stat-v">${rupiah(r.saldoBelumSetor)}</div></div></div>`;
   document.getElementById('btnDownloadRekapHarian').onclick = () => {
     const bagianTgl = (r.tanggal || '').split('-');
     const tanggalObj = bagianTgl.length === 3 ? new Date(Number(bagianTgl[0]), Number(bagianTgl[1])-1, Number(bagianTgl[2])) : new Date();
@@ -808,7 +857,7 @@ async function rekapRentang(){
     <div class="table-scroll">
     <table>
       <thead><tr><th>Tanggal</th><th>Absen</th><th>Nama</th><th style="text-align:right">Nominal</th></tr></thead>
-      <tbody>${r.transaksi.map(x => `<tr><td>${x.tanggal}</td><td>${x.absen}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.nominal)}</td></tr>`).join('') || '<tr><td colspan="4">Tidak ada transaksi pada rentang ini.</td></tr>'}</tbody>
+      <tbody>${r.transaksi.map(x => `<tr><td>${x.tanggal}</td><td>${x.absen}</td><td><span class="nm-av"><span class="av-sm">${inisial_(x.nama)}</span>${x.nama}</span></td><td class="mono" style="text-align:right">${rupiah(x.nominal)}</td></tr>`).join('') || '<tr><td colspan="4">Tidak ada transaksi pada rentang ini.</td></tr>'}</tbody>
       <tfoot><tr><td colspan="3">Total</td><td class="mono" style="text-align:right">${rupiah(r.total)}</td></tr></tfoot>
     </table>
     </div>`;
@@ -843,9 +892,9 @@ async function saldoSiswa(){
   const r = await call('saldoSatu', { absen: absen });
   if (!r.ok){ showError('areaSaldoSiswa', r.pesan); return; }
   document.getElementById('areaSaldoSiswa').innerHTML = `
-    <div class="info-box" style="margin-top:10px">
-      <div>Nama: <b>${r.nama}</b> (Absen ${r.absen})</div>
-      <div>Saldo: <b class="mono">${rupiah(r.saldo)}</b></div>
+    <div class="saldo-card">
+      <div class="saldo-label">${r.nama} \u00b7 Absen ${r.absen}</div>
+      <div class="saldo">${rupiah(r.saldo)}</div>
     </div>`;
 }
 async function saldoKelas(){
@@ -875,7 +924,7 @@ async function saldoKelas(){
     <div class="table-scroll">
     <table>
       <thead><tr><th>Absen</th><th>Nama</th><th style="text-align:right">Saldo</th></tr></thead>
-      <tbody>${r.list.map(x => `<tr><td>${x.absen}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.saldo)}</td></tr>`).join('')}</tbody>
+      <tbody>${r.list.map(x => `<tr><td>${x.absen}</td><td><span class="nm-av"><span class="av-sm">${inisial_(x.nama)}</span>${x.nama}</span></td><td class="mono" style="text-align:right">${rupiah(x.saldo)}</td></tr>`).join('')}</tbody>
       <tfoot><tr><td colspan="2">Total</td><td class="mono" style="text-align:right">${rupiah(r.totalKeseluruhan)}</td></tr></tfoot>
     </table>
     </div>`;
@@ -1052,11 +1101,10 @@ async function ranking(){
   if (rankingLoaded) setTombolLoading(btn, false);
   if (!r.ok){ showError('areaRanking', r.pesan); return; }
   rankingLoaded = true;
-  document.getElementById('areaRanking').innerHTML = `
-    <table>
-      <thead><tr><th>Peringkat</th><th>Nama</th><th style="text-align:right">Total</th></tr></thead>
-      <tbody>${r.ranking.slice(0,3).map((x,i) => `<tr><td>${i+1}</td><td>${x.nama}</td><td class="mono" style="text-align:right">${rupiah(x.total)}</td></tr>`).join('') || '<tr><td colspan="3">Belum ada data.</td></tr>'}</tbody>
-    </table>`;
+  const medali = ['#FAEEDA;color:#633806', '#E8E9ED;color:#444441', '#FAECE7;color:#712B13'];
+  document.getElementById('areaRanking').innerHTML = r.ranking.slice(0,3).map((x,i) =>
+    `<div class="rk ${i === 0 ? 'rk1' : ''}"><div class="no" style="background:${medali[i]}">${i+1}</div><div class="rk-n">${x.nama}</div><div class="mono">${rupiah(x.total)}</div></div>`
+  ).join('') || '<div class="desc">Belum ada data.</div>';
 }
 
 attachLiveSearch(
