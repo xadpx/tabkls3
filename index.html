@@ -607,6 +607,45 @@ function gantiTanggalInput_(){
   muatDaftarSiswa();
 }
 
+// Mode tanggal manual: daftar siswa + transaksi pada tanggal tsb (tanpa bergantung pada listSiswaHariIni)
+async function muatDaftarManual_(tgl){
+  daftarSiswaCache = null;
+  const [list, rek] = await Promise.all([
+    getDaftarSiswaCache(),
+    call('rekapRentang', { tglMulai: tgl, tglAkhir: tgl })
+  ]);
+  if (!list.length){ daftarSiswaCache = null; return { ok:false, pesan:'Gagal memuat daftar siswa.' }; }
+  if (!rek.ok) return rek;
+  const perAbsen = {};
+  (rek.transaksi || []).forEach(x => {
+    const k = String(x.absen);
+    perAbsen[k] = (perAbsen[k] || 0) + Number(x.nominal || 0);
+  });
+  return {
+    ok: true, diblokir: false,
+    list: list.map(s => ({ absen: s.absen, nama: s.nama, nominalHariIni: perAbsen[String(s.absen)] || 0 }))
+  };
+}
+// Simpan dengan tanggal manual: satu transaksi per siswa pada tanggal terpilih (4 request paralel)
+async function simpanTanggalManual_(daftar, tgl){
+  const list = await getDaftarSiswaCache();
+  const namaByAbsen = {};
+  list.forEach(s => { namaByAbsen[String(s.absen)] = s.nama; });
+  let sukses = 0; const gagal = [];
+  for (let i = 0; i < daftar.length; i += 4){
+    const batch = daftar.slice(i, i + 4);
+    await Promise.all(batch.map(async item => {
+      const nama = namaByAbsen[String(item.absen)] || '';
+      try {
+        const r = await call('restoreTransaksi', { absen: item.absen, nama: nama, tanggal: tgl, nominal: item.nominal });
+        if (r && r.ok === false) gagal.push((nama || 'Absen ' + item.absen) + ': ' + (r.pesan || 'gagal'));
+        else sukses++;
+      } catch(err){ gagal.push((nama || 'Absen ' + item.absen) + ': ' + err.message); }
+    }));
+  }
+  return { ok:true, sukses: sukses, gagal: gagal };
+}
+
 let daftarSiswaLoadedOnce = false;
 async function muatDaftarSiswa(){
   const area = document.getElementById('daftarSiswaArea');
@@ -620,7 +659,7 @@ async function muatDaftarSiswa(){
   }
   try {
     const tgl = getTanggalInput_();
-    const r = await call('listSiswaHariIni', tgl ? { tanggal: tgl } : {});
+    const r = tgl ? await muatDaftarManual_(tgl) : await call('listSiswaHariIni');
     if (daftarSiswaLoadedOnce) setTombolLoading(btn, false);
     daftarSiswaLoadedOnce = true;
     warn.innerHTML = '';
@@ -681,9 +720,7 @@ async function simpanSemua(){
   fab.innerHTML = '<span class="spinner" style="width:20px;height:20px;margin:0;border-color:rgba(255,255,255,.4);border-top-color:#fff"></span>';
 
   try {
-    const payload = { items: daftar };
-    if (tgl) payload.tanggal = tgl;
-    const r = await call('simpanBanyakTransaksi', payload);
+    const r = tgl ? await simpanTanggalManual_(daftar, tgl) : await call('simpanBanyakTransaksi', { items: daftar });
     fab.disabled = false;
     fab.innerHTML = asalIsi;
     if (!r.ok){ alert(r.pesan || 'Gagal menyimpan.'); return; }
