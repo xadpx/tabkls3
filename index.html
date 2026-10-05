@@ -234,7 +234,7 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
           </div>
           <button class="btn outline small" id="btnToggleTgl" onclick="toggleTanggalManual()">Ubah tanggal</button>
         </div>
-        <input type="date" id="tglInputManual" class="hidden" onchange="gantiTanggalInput_()">
+        <input type="date" id="tglInputManual" class="hidden" onchange="gantiTanggalInput_()" onclick="bukaKalender_()">
       </div>
       <div id="warnTunggakan"></div>
       <button class="btn outline small" id="btnSegarkanInput" onclick="muatDaftarSiswa()" style="width:auto;margin-bottom:10px">Segarkan</button>
@@ -590,7 +590,15 @@ function toggleTanggalManual(){
     inp.value = hariIniISO_();
   }
   renderTanggalInput_();
-  muatDaftarSiswa();
+  if (tanggalManual) bukaKalender_();
+  else muatDaftarSiswa();
+}
+function bukaKalender_(){
+  const inp = document.getElementById('tglInputManual');
+  try {
+    if (typeof inp.showPicker === 'function') inp.showPicker();
+    else inp.focus();
+  } catch(e){ inp.focus(); }
 }
 function gantiTanggalInput_(){
   const inp = document.getElementById('tglInputManual');
@@ -646,7 +654,7 @@ async function muatDaftarSiswa(){
         <div class="siswa-row" data-absen="${s.absen}">
           <div style="width:28px;color:var(--ink-soft)">${idx + 1}</div>
           <div class="siswa-info"><div class="siswa-nama">${s.nama}</div></div>
-          <input type="text" inputmode="numeric" class="siswa-input" placeholder="0" oninput="formatRibuan_(this)">
+          <input type="text" inputmode="numeric" class="siswa-input" value="0" onfocus="this.select()" oninput="formatRibuan_(this)">
         </div>`;
     }).join('');
   } catch(err){
@@ -662,7 +670,7 @@ async function simpanSemua(){
   rows.forEach(row => {
     const input = row.querySelector('.siswa-input');
     const nominal = angkaMentah_(input);
-    if (nominal) daftar.push({ absen: row.dataset.absen, nominal: nominal });
+    if (nominal && Number(nominal) > 0) daftar.push({ absen: row.dataset.absen, nominal: nominal });
   });
   if (!daftar.length){ alert('Belum ada nominal yang diisi.'); return; }
   const tgl = getTanggalInput_();
