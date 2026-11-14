@@ -739,6 +739,8 @@ async function muatDaftarSiswa(){
       return;
     }
 
+    // Selalu urut nomor absen, terlepas dari urutan data/input terakhir
+    r.list = r.list.slice().sort((a, b) => (Number(a.absen) || 0) - (Number(b.absen) || 0));
     area.innerHTML = r.list.map((s, idx) => {
       const av = '<div class="no-urut">' + (idx + 1) + '</div><div class="av">' + inisial_(s.nama) + '</div>';
       if (s.nominalHariIni > 0){
@@ -810,6 +812,7 @@ async function rekapHarian(){
   if (rekapHarianLoaded) setTombolLoading(btn, false);
   if (!r.ok){ showError('areaRekapHarian', r.pesan); return; }
   rekapHarianLoaded = true;
+  r.transaksi = (r.transaksi || []).slice().sort((a, b) => (Number(a.absen) || 0) - (Number(b.absen) || 0));
   lastRekapHarian = r.transaksi.map(x => ({ Absen: x.absen, Nama: x.nama, Nominal: x.nominal }));
   const area = document.getElementById('areaRekapHarian');
   area.innerHTML = `
@@ -1001,6 +1004,11 @@ async function cekRiwayatAdmin(){
   renderRiwayatAdmin_(r.nama, r.riwayat);
 }
 function renderRiwayatAdmin_(nama, riwayat){
+  // Urutkan dari tanggal terlama (atas) ke terbaru (bawah)
+  riwayat = (riwayat || []).slice().sort((a, b) =>
+    String(a.tanggalISO || '').localeCompare(String(b.tanggalISO || '')) ||
+    (Number(a.rowNumber) || 0) - (Number(b.rowNumber) || 0)
+  );
   document.getElementById('areaRiwayatAdmin').innerHTML = `
     <div class="summary-line" style="margin-top:10px">Nama: <b>${nama}</b></div>
     <table>
