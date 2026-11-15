@@ -156,6 +156,13 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
 .ac-absen{color:var(--ink-soft); font-size:.76rem; white-space:nowrap}
 .filter-box{margin-bottom:4px}
 
+/* Tombol X di field pencarian */
+.search-wrap{ position:relative }
+.search-wrap > input{ padding-right:40px }
+.search-clear{ position:absolute; right:8px; top:7px; width:30px; height:30px; border:0; border-radius:50%; background:transparent; color:var(--ink-soft); font-size:1.3rem; line-height:1; cursor:pointer; display:none; align-items:center; justify-content:center; padding:0 }
+.search-clear:hover{ background:var(--surface-2); color:var(--ink) }
+.search-wrap.has-text .search-clear{ display:flex }
+
 /* ===== Gaya A: kartu + chip ===== */
 .back{ width:36px; height:36px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; padding:0 }
 .back:hover{border-color:var(--blue); color:var(--blue)}
@@ -320,8 +327,8 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
         <button class="btn outline small" data-saldomode="kelas" onclick="gantiSaldoMode('kelas')">Kelas</button>
       </div>
       <div id="saldoSiswaBox">
-        <div class="autocomplete-wrap">
-          <input type="text" id="absenSaldo" placeholder="Cari nama siswa..." autocomplete="off">
+        <div class="autocomplete-wrap search-wrap">
+          <input type="text" id="absenSaldo" placeholder="Cari nama siswa..." autocomplete="off"><button type="button" class="search-clear" aria-label="Hapus pencarian">&times;</button>
           <div id="dropdownSaldo" class="ac-dropdown hidden"></div>
         </div>
         <button class="btn purple" onclick="saldoSiswa()">Cek</button>
@@ -343,8 +350,8 @@ tfoot td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none}
     </div>
     <div class="card">
       <div class="desc">Cek riwayat transaksi siswa. Setiap baris bisa diubah nominalnya atau dihapus manual.</div>
-      <div class="autocomplete-wrap">
-        <input type="text" id="absenRiwayat" placeholder="Cari nama siswa..." autocomplete="off">
+      <div class="autocomplete-wrap search-wrap">
+        <input type="text" id="absenRiwayat" placeholder="Cari nama siswa..." autocomplete="off"><button type="button" class="search-clear" aria-label="Hapus pencarian">&times;</button>
         <div id="dropdownRiwayat" class="ac-dropdown hidden"></div>
       </div>
       <button class="btn pink" onclick="cekRiwayatAdmin()">Cek</button>
@@ -820,7 +827,7 @@ async function rekapHarian(){
       <div class="summary-line">Tanggal: <b>${r.tanggal || '-'}</b></div>
       <button class="btn small outline" id="btnDownloadRekapHarian">Download Excel</button>
     </div>
-    <input type="text" class="filter-box" placeholder="Cari nama..." oninput="filterTabel(this, 'areaRekapHarian')">
+    <div class="search-wrap"><input type="text" class="filter-box" placeholder="Cari nama..." oninput="filterTabel(this, 'areaRekapHarian')"><button type="button" class="search-clear" aria-label="Hapus pencarian">&times;</button></div>
     <div class="table-scroll">
     <table>
       <thead><tr><th>Absen</th><th>Nama</th><th style="text-align:right">Nominal</th></tr></thead>
@@ -857,7 +864,7 @@ async function rekapRentang(){
       <div class="summary-line">Periode: <b>${tglMulai}</b> s/d <b>${tglAkhir}</b></div>
       <button class="btn small outline" id="btnDownloadRekapRentang">Download Excel</button>
     </div>
-    <input type="text" class="filter-box" placeholder="Cari nama..." oninput="filterTabel(this, 'areaRekapRentang')">
+    <div class="search-wrap"><input type="text" class="filter-box" placeholder="Cari nama..." oninput="filterTabel(this, 'areaRekapRentang')"><button type="button" class="search-clear" aria-label="Hapus pencarian">&times;</button></div>
     <div class="table-scroll">
     <table>
       <thead><tr><th>Tanggal</th><th>Absen</th><th>Nama</th><th style="text-align:right">Nominal</th></tr></thead>
@@ -924,7 +931,7 @@ async function saldoKelas(){
       <div class="summary-line">Total keseluruhan: <b class="mono">${rupiah(r.totalKeseluruhan)}</b></div>
       <button class="btn small outline" id="btnDownloadSaldoKelas">Download Excel</button>
     </div>
-    <input type="text" class="filter-box" placeholder="Cari nama..." oninput="filterTabel(this, 'areaSaldoKelas')">
+    <div class="search-wrap"><input type="text" class="filter-box" placeholder="Cari nama..." oninput="filterTabel(this, 'areaSaldoKelas')"><button type="button" class="search-clear" aria-label="Hapus pencarian">&times;</button></div>
     <div class="table-scroll">
     <table>
       <thead><tr><th>Absen</th><th>Nama</th><th style="text-align:right">Saldo</th></tr></thead>
@@ -949,59 +956,106 @@ async function getDaftarSiswaCache(){
 
 // Live search generik: ketik nama -> muncul dropdown -> klik untuk pilih
 function attachLiveSearch(inputEl, dropdownEl, onSelect, onTyping){
-  inputEl.addEventListener('input', async () => {
-    if (onTyping) onTyping();
+  let indeks = null, indeksDari = null;
+  const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  // Indeks nama huruf kecil dibuat sekali per daftar, bukan di setiap ketikan
+  function ambilIndeks(list){
+    if (indeksDari !== list){ indeks = list.map(s => ({ s: s, k: String(s.nama).toLowerCase() })); indeksDari = list; }
+    return indeks;
+  }
+  function tampil(list){
     const q = inputEl.value.trim().toLowerCase();
     if (!q){ dropdownEl.classList.add('hidden'); dropdownEl.innerHTML = ''; return; }
-    const list = await getDaftarSiswaCache();
-    const matches = list.filter(s => s.nama.toLowerCase().includes(q)).slice(0, 8);
+    const awal = [], tengah = [];
+    for (const it of ambilIndeks(list)){
+      const i = it.k.indexOf(q);
+      if (i === 0) awal.push(it.s); else if (i > 0) tengah.push(it.s);
+      if (awal.length >= 8) break;
+    }
+    const matches = awal.concat(tengah).slice(0, 8);
     if (!matches.length){
       dropdownEl.innerHTML = '<div class="ac-item ac-empty">Nama tidak ditemukan</div>';
-      dropdownEl.classList.remove('hidden');
-      return;
+    } else {
+      dropdownEl.innerHTML = matches.map(s =>
+        `<div class="ac-item" data-absen="${esc(s.absen)}" data-nama="${esc(s.nama)}"><span>${esc(s.nama)}</span><span class="ac-absen">Absen ${esc(s.absen)}</span></div>`
+      ).join('');
     }
-    dropdownEl.innerHTML = matches.map(s =>
-      `<div class="ac-item" data-absen="${s.absen}" data-nama="${s.nama}"><span>${s.nama}</span><span class="ac-absen">Absen ${s.absen}</span></div>`
-    ).join('');
     dropdownEl.classList.remove('hidden');
-    dropdownEl.querySelectorAll('.ac-item[data-absen]').forEach(item => {
-      item.onclick = () => {
-        onSelect(item.dataset.absen, item.dataset.nama);
-        dropdownEl.classList.add('hidden');
-      };
-    });
+  }
+  // Satu handler klik untuk semua item (tidak perlu pasang ulang tiap ketikan)
+  dropdownEl.addEventListener('click', (e) => {
+    const item = e.target.closest('.ac-item[data-absen]');
+    if (!item) return;
+    onSelect(item.dataset.absen, item.dataset.nama);
+    dropdownEl.classList.add('hidden');
+  });
+  inputEl.addEventListener('input', () => {
+    if (onTyping) onTyping();
+    if (daftarSiswaCache) { tampil(daftarSiswaCache); return; }   // langsung, tanpa menunggu
+    getDaftarSiswaCache().then(tampil);
   });
   document.addEventListener('click', (e) => {
     if (!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) dropdownEl.classList.add('hidden');
   });
 }
 
+// Tombol X: hapus isi field pencarian + jalankan ulang pencarian/filter
+document.addEventListener('input', (e) => {
+  const w = e.target.closest && e.target.closest('.search-wrap');
+  if (w) w.classList.toggle('has-text', e.target.value.length > 0);
+});
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest && e.target.closest('.search-clear');
+  if (!btn) return;
+  const w = btn.closest('.search-wrap');
+  const inp = w.querySelector('input');
+  inp.value = '';
+  w.classList.remove('has-text');
+  inp.dispatchEvent(new Event('input', { bubbles: true }));
+  inp.focus();
+});
+
 // Filter tabel yang sudah ditampilkan (Rekap & Saldo Kelas) berdasarkan nama, live saat mengetik
 function filterTabel(inputEl, containerId){
   const q = inputEl.value.trim().toLowerCase();
   const container = document.getElementById(containerId);
   const rows = container.querySelectorAll('table tbody tr');
+  // Teks baris di-cache sekali; hanya ubah tampilan jika memang berubah
   rows.forEach(row => {
-    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    if (row._t === undefined) row._t = row.textContent.toLowerCase();
+    const tampil = !q || row._t.includes(q);
+    if (row._tampil !== tampil){ row._tampil = tampil; row.style.display = tampil ? '' : 'none'; }
   });
 }
 
 let riwayatAdminAbsen = '';
 let riwayatAdminNama = '';
 let riwayatAdminData = [];
+let riwayatAdminSaldo = null;
+let riwayatPage = 1;
+const RIWAYAT_PER_PAGE = 10;
 
 let selectedAbsenRiwayat = '';
 async function cekRiwayatAdmin(){
   const raw = document.getElementById('absenRiwayat').value.trim();
   const absen = selectedAbsenRiwayat || raw.replace(/\D/g, '');
   if (!absen){ showError('areaRiwayatAdmin', 'Ketik nama siswa lalu pilih dari daftar, atau isi nomor absen langsung.'); return; }
+  if (riwayatAdminAbsen !== absen) riwayatPage = 1; // siswa lain -> mulai dari halaman 1
   riwayatAdminAbsen = absen;
   showLoading('areaRiwayatAdmin');
-  const r = await call('riwayat', { absen: absen });
+  const [r, rs] = await Promise.all([
+    call('riwayat', { absen: absen }),
+    call('saldoSatu', { absen: absen }).catch(() => null)
+  ]);
   if (!r.ok){ showError('areaRiwayatAdmin', r.pesan); return; }
   riwayatAdminNama = r.nama;
   riwayatAdminData = r.riwayat;
+  riwayatAdminSaldo = (rs && rs.ok) ? rs.saldo : null;
   renderRiwayatAdmin_(r.nama, r.riwayat);
+}
+function gantiHalamanRiwayat_(p){
+  riwayatPage = p;
+  renderRiwayatAdmin_(riwayatAdminNama, riwayatAdminData);
 }
 function renderRiwayatAdmin_(nama, riwayat){
   // Urutkan dari tanggal terlama (atas) ke terbaru (bawah)
@@ -1009,13 +1063,33 @@ function renderRiwayatAdmin_(nama, riwayat){
     String(a.tanggalISO || '').localeCompare(String(b.tanggalISO || '')) ||
     (Number(a.rowNumber) || 0) - (Number(b.rowNumber) || 0)
   );
+  const total = riwayat.length;
+  const totalPage = Math.max(1, Math.ceil(total / RIWAYAT_PER_PAGE));
+  if (riwayatPage > totalPage) riwayatPage = totalPage;
+  if (riwayatPage < 1) riwayatPage = 1;
+  const mulai = (riwayatPage - 1) * RIWAYAT_PER_PAGE;
+  const halaman = riwayat.slice(mulai, mulai + RIWAYAT_PER_PAGE);
+
+  const pager = totalPage > 1 ? `
+    <div class="between" style="margin-top:12px">
+      <button class="btn small outline" ${riwayatPage <= 1 ? 'disabled' : ''} onclick="gantiHalamanRiwayat_(${riwayatPage - 1})">\u2039 Sebelumnya</button>
+      <div class="summary-line">Halaman <b>${riwayatPage}</b> dari <b>${totalPage}</b></div>
+      <button class="btn small outline" ${riwayatPage >= totalPage ? 'disabled' : ''} onclick="gantiHalamanRiwayat_(${riwayatPage + 1})">Berikutnya \u203a</button>
+    </div>` : '';
+
+  const saldoHtml = riwayatAdminSaldo === null ? '' : `
+    <div class="saldo-card" style="margin-top:14px">
+      <div class="saldo-label">Saldo ${nama}</div>
+      <div class="saldo">${rupiah(riwayatAdminSaldo)}</div>
+    </div>`;
+
   document.getElementById('areaRiwayatAdmin').innerHTML = `
     <div class="summary-line" style="margin-top:10px">Nama: <b>${nama}</b></div>
     <table>
       <thead><tr><th>No</th><th>Tanggal</th><th style="text-align:right">Nominal</th><th></th></tr></thead>
-      <tbody>${riwayat.map((x,i) => `
+      <tbody>${halaman.map((x,i) => `
         <tr>
-          <td>${i+1}</td>
+          <td>${mulai + i + 1}</td>
           <td>${x.tanggal}</td>
           <td class="mono" style="text-align:right">${rupiah(x.nominal)}</td>
           <td style="text-align:center">
@@ -1024,7 +1098,7 @@ function renderRiwayatAdmin_(nama, riwayat){
             </button>
           </td>
         </tr>`).join('') || '<tr><td colspan="4">Belum ada riwayat.</td></tr>'}</tbody>
-    </table>`;
+    </table>${pager}${saldoHtml}`;
 }
 
 let editRiwayatRowNumber = null;
@@ -1139,6 +1213,7 @@ attachLiveSearch(
 
 renderTanggalInput_();
 goHome();
+getDaftarSiswaCache().catch(() => {}); // muat daftar siswa di awal agar pencarian langsung muncul
 </script>
 </body>
 </html>
